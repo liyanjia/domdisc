@@ -27,7 +27,7 @@ import android.preference.PreferenceManager;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import dk.brunt.discussionwork2.db.DatabaseManager;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 
 public class PollReceiver extends BroadcastReceiver {
 	// private static final int PERIOD=240000; // 60000 = 1 min 3600000=1hr

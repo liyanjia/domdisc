@@ -1,9 +1,12 @@
 package dk.bruntt.dominodiscussionwork2;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.net.QuotedPrintableCodec;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,9 +25,8 @@ import org.springframework.web.client.RestTemplate;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import dk.brunt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.comms.UserSessionTools;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
 
@@ -37,6 +39,7 @@ public class DiscussionReplicator {
 	private boolean shouldLogALot = false;
 	private static final String loginPath = "/names.nsf?Login";
 	private String authenticationCookie = "";
+	private static final String loginRedirectTo = "/icons/ecblank.gif";
 
 	public DiscussionReplicator(Context context) {
 		super();
@@ -60,14 +63,14 @@ public class DiscussionReplicator {
 		ApplicationLog.i("Replicate " + discussionDatabase.getName());
 
 		if (UserSessionTools.haveInternet(context) == false) {
-			Log.i(getClass().getSimpleName(),
-					"Internet connection not available - Replication not possible");
+			//			Log.i(getClass().getSimpleName(),
+			//					"Internet connection not available - Replication not possible");
 			ApplicationLog
-			.i("Internet connection not available - Replication not possible");			
+			.i("Internet connection not available - Replication not possible");
 		} else {
-			Log.d(getClass().getSimpleName(),
-					"Internet connection is available");
-			Log.d(getClass().getSimpleName(), "Will replicate");
+			//			Log.d(getClass().getSimpleName(),
+			//					"Internet connection is available");
+			//			Log.d(getClass().getSimpleName(), "Will replicate");
 
 			ApplicationLog.d(
 					"Internet connection is available- Will replicate",
@@ -95,7 +98,7 @@ public class DiscussionReplicator {
 						+ "/api/data/documents/";
 			}
 
-			Log.d(getClass().getSimpleName(), "Starting");
+			//			Log.d(getClass().getSimpleName(), "Starting");
 
 			ApplicationLog.d("Starting", shouldLogALot);
 
@@ -104,10 +107,11 @@ public class DiscussionReplicator {
 					shouldLogALot);
 			authenticationCookie = getAuthenticationToken(hostName, httpPort,
 					userName, password, discussionDatabase.isUseSSL(),
-					urlForDocuments);
+					loginRedirectTo);
 
-			if (authenticationCookie.equals("")){
-				ApplicationLog.w("Unable to start replication as Authentication with the server was not established. Stopping.");
+			if (authenticationCookie.equals("")) {
+				ApplicationLog
+				.w("Unable to start replication as Authentication with the server was not established. Stopping.");
 			} else {
 				// String url =
 				// "http://www.jens.bruntt.dk/androiddev/discussi.nsf/api/data/documents/";
@@ -119,22 +123,25 @@ public class DiscussionReplicator {
 				HttpHeaders requestHeaders = new HttpHeaders();
 				requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
 
-				ApplicationLog.d("Setting LtpaToken in request header",	shouldLogALot);
+				ApplicationLog.d("Setting Authentication token in request header: " + authenticationCookie,
+						shouldLogALot);
 				requestHeaders.add("Cookie", authenticationCookie);
 
 				requestHeaders.add("Referer", urlForDocuments);
-				//			requestHeaders
-				//			.setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22");
+				// requestHeaders
+				// .setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22");
 				requestHeaders.setCacheControl("max-age=0");
 
-				HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+				HttpEntity<?> requestEntity = new HttpEntity<Object>(
+						requestHeaders);
 
-				Log.d(getClass().getSimpleName(), "HTTP connection now");
+				//				Log.d(getClass().getSimpleName(), "HTTP connection now");
 				ApplicationLog.d("HTTP connection now", shouldLogALot);
 
 				String jsonString;
 				try {
-					Log.i(getClass().getSimpleName(), "Accesing " + urlForDocuments);
+					//					Log.i(getClass().getSimpleName(), "Accesing "
+					//							+ urlForDocuments);
 					ApplicationLog.i("Accesing " + urlForDocuments);
 
 					// Make the HTTP GET request, marshaling the response to a
@@ -144,8 +151,8 @@ public class DiscussionReplicator {
 							String.class);
 					jsonString = response.getBody();
 
-					Log.d(getClass().getSimpleName(), "String received length: "
-							+ jsonString.length());
+					//					Log.d(getClass().getSimpleName(),
+					//							"String received length: " + jsonString.length());
 
 					ApplicationLog.d(
 							"String received length: " + jsonString.length(),
@@ -157,8 +164,8 @@ public class DiscussionReplicator {
 						try {
 							JSONArray jsonArray = new JSONArray(jsonString);
 
-							Log.d(getClass().getSimpleName(), "Number of entries "
-									+ jsonArray.length());
+							//							Log.d(getClass().getSimpleName(),
+							//									"Number of entries " + jsonArray.length());
 
 							ApplicationLog.d(
 									"Number of entries " + jsonArray.length(),
@@ -169,26 +176,27 @@ public class DiscussionReplicator {
 										discussionDatabase);
 
 							} else {
-								Log.i(getClass().getSimpleName(),
-										"No entries retrieved. Nothing to do");
+								//								Log.i(getClass().getSimpleName(),
+								//										"No entries retrieved. Nothing to do");
 								ApplicationLog
 								.i("No entries retrieved. Nothing to do");
 							}
 
 						} catch (Exception e) {
 							// e.printStackTrace();
-							Log.e(getClass().getSimpleName(),
-									"getmessage: " + e.getMessage());
+							//							Log.e(getClass().getSimpleName(), "getmessage: "
+							//									+ e.getMessage());
 							ApplicationLog.e("Exception" + e.getMessage());
 						}
 
 					} else {
-						Log.e(getClass().getSimpleName(),
-								"There is a login issue when accessing "
-										+ urlForDocuments);
-						Log.e(getClass().getSimpleName(), "The server at "
-								+ hostName + " prompts for login");
-						ApplicationLog.e("There is a login issue when accessing "
+						//						Log.e(getClass().getSimpleName(),
+						//								"There is a login issue when accessing "
+						//										+ urlForDocuments);
+						//						Log.e(getClass().getSimpleName(), "The server at "
+						//								+ hostName + " prompts for login");
+						ApplicationLog
+						.e("There is a login issue when accessing "
 								+ urlForDocuments);
 						ApplicationLog.e("The server at " + hostName
 								+ " prompts for login");
@@ -201,13 +209,14 @@ public class DiscussionReplicator {
 					if (errorMessage == null) {
 						errorMessage = "Error message not available";
 					}
-					Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
+					//					Log.e(getClass().getSimpleName(), "getmessage: "
+					//							+ errorMessage);
 					ApplicationLog.e("Exception: " + errorMessage);
 
 					if (errorMessage.contains("403")) {
-						Log.i(getClass().getSimpleName(),
-								"403 - Looks like the Domino Data Service is not enabled for the database "
-										+ discussionDatabase.getDbPath());
+						//						Log.i(getClass().getSimpleName(),
+						//								"403 - Looks like the Domino Data Service is not enabled for the database "
+						//										+ discussionDatabase.getDbPath());
 						ApplicationLog
 						.i("403 - Looks like the Domino Data Service is not enabled for the database "
 								+ discussionDatabase.getDbPath());
@@ -215,8 +224,8 @@ public class DiscussionReplicator {
 
 					else if (errorMessage.contains("404")) {
 						String myErrorMessage = "404 - Looks like the Domino Database-path is wrong - typing error in the Configuration? ";
-						Log.i(getClass().getSimpleName(), myErrorMessage
-								+ discussionDatabase.getDbPath());
+						//						Log.i(getClass().getSimpleName(), myErrorMessage
+						//								+ discussionDatabase.getDbPath());
 						ApplicationLog.i(myErrorMessage + " "
 								+ discussionDatabase.getDbPath());
 					}
@@ -224,15 +233,15 @@ public class DiscussionReplicator {
 					else {
 						String localizedErrorMessage = e1.getLocalizedMessage();
 						if (localizedErrorMessage != null) {
-							Log.e(getClass().getSimpleName(),
-									"localizedErrorMessage: "
-											+ localizedErrorMessage);
+							//							Log.e(getClass().getSimpleName(),
+							//									"localizedErrorMessage: "
+							//											+ localizedErrorMessage);
 							ApplicationLog.e("localizedErrorMessage: "
 									+ localizedErrorMessage);
 						} else {
-							Log.e(getClass().getSimpleName(),
-									"Unable to get data from the database "
-											+ discussionDatabase.getDbPath());
+							//							Log.e(getClass().getSimpleName(),
+							//									"Unable to get data from the database "
+							//											+ discussionDatabase.getDbPath());
 							ApplicationLog
 							.e("Unable to get data from the database "
 									+ discussionDatabase.getDbPath());
@@ -245,13 +254,12 @@ public class DiscussionReplicator {
 					if (message == null) {
 						message = "Exception with no message";
 					}
-					Log.e(getClass().getSimpleName(), message);
+					ApplicationLog.e(message);
 					e2.printStackTrace();
 				}
 			}
 		}
 	}
-
 
 	/**
 	 * If String contains FORM tag and HTML tag - this is a Domino login form
@@ -297,8 +305,8 @@ public class DiscussionReplicator {
 					// Log.d(getClass().getSimpleName(), "- ENTRY -");
 					// Log.d(getClass().getSimpleName(), "modified: " +
 					// modified);
-					Log.d(getClass().getSimpleName(), "entry with unid: "
-							+ unid);
+					//					Log.d(getClass().getSimpleName(), "entry with unid: "
+					//							+ unid);
 
 					ApplicationLog.d("entry with unid: " + unid, shouldLogALot);
 
@@ -315,8 +323,8 @@ public class DiscussionReplicator {
 					serverDiscussionEntryList.add(discussionEntry);
 					// Log.d(getClass().getSimpleName(), "add to list done");
 				} catch (JSONException e) {
-					Log.e(getClass().getSimpleName(),
-							"Error while accessing JSON object values");
+					//					Log.e(getClass().getSimpleName(),
+					//							"Error while accessing JSON object values");
 					ApplicationLog
 					.e("Error while accessing JSON object values");
 					e.printStackTrace();
@@ -333,13 +341,13 @@ public class DiscussionReplicator {
 		 */
 		if ((serverDiscussionEntryList == null)
 				|| (serverDiscussionEntryList.isEmpty())) {
-			Log.i(getClass().getSimpleName(),
-					"The JSON retrievede did not contain any documents");
+			//			Log.i(getClass().getSimpleName(),
+			//					"The JSON retrievede did not contain any documents");
 			ApplicationLog
 			.i("The JSON retrievede did not contain any documents");
 		} else {
-			Log.i(getClass().getSimpleName(),
-					"Checking all downloaded entries: are they already stored locally?");
+			//			Log.i(getClass().getSimpleName(),
+			//					"Checking all downloaded entries: are they already stored locally?");
 
 			ApplicationLog
 			.d("Checking all downloaded entries: are they already stored locally?",
@@ -353,7 +361,7 @@ public class DiscussionReplicator {
 				String unid = currentEntry.getUnid();
 				// Check if the entry is already in the database
 				// Her er jeg
-				Log.d(getClass().getSimpleName(), "Lookup for unid " + unid);
+				//				Log.d(getClass().getSimpleName(), "Lookup for unid " + unid);
 
 				ApplicationLog.d("Lookup for unid: " + unid, shouldLogALot);
 
@@ -361,8 +369,8 @@ public class DiscussionReplicator {
 						.getDiscussionEntryWithId(unid);
 
 				if (dbEntry == null) {
-					Log.d(getClass().getSimpleName(),
-							"This entry has not been stored before - creating newDiscussionEntry");
+					//					Log.d(getClass().getSimpleName(),
+					//							"This entry has not been stored before - creating newDiscussionEntry");
 
 					ApplicationLog
 					.d("This entry has not been stored before - creating newDiscussionEntry",
@@ -372,32 +380,38 @@ public class DiscussionReplicator {
 					DiscussionEntry fullDiscussionEntry = getFullEntryFromServer(currentEntry);
 					DatabaseManager.getInstance().createDiscussionEntry(
 							fullDiscussionEntry);
-					Log.d(getClass().getSimpleName(),
-							"This entry has been stored with values: "
-									+ fullDiscussionEntry.getSubject());
+					//					Log.d(getClass().getSimpleName(),
+					//							"This entry has been stored with values: "
+					//									+ fullDiscussionEntry.getSubject());
 
 					ApplicationLog.d("This entry has been stored with values: "
 							+ fullDiscussionEntry.getSubject(), shouldLogALot);
 
 				} else {
-					Log.d(getClass().getSimpleName(),
-							"This entry is already in the database: "
-									+ dbEntry.getSubject());
+					//					Log.d(getClass().getSimpleName(),
+					//							"This entry is already in the database: "
+					//									+ dbEntry.getSubject());
 
 					ApplicationLog.d("This entry is already in the database: "
 							+ dbEntry.getSubject(), shouldLogALot);
-					ApplicationLog.d("Checking if modified dates are the same", shouldLogALot);
-					
+					ApplicationLog.d("Checking if modified dates are the same",
+							shouldLogALot);
+
 					String currentEntryModified = currentEntry.getModified();
 					String dbEntryModified = dbEntry.getModified();
 					if (currentEntryModified.contentEquals(dbEntryModified)) {
-						ApplicationLog.d("Modified date is unchanged", shouldLogALot);
+						ApplicationLog.d("Modified date is unchanged",
+								shouldLogALot);
 					} else {
-						ApplicationLog.d("Modified date is changed. Updating dbEntry", shouldLogALot);
+						ApplicationLog.d(
+								"Modified date is changed. Updating dbEntry",
+								shouldLogALot);
 						DiscussionEntry fullDiscussionEntry = getFullEntryFromServer(currentEntry);
-						fullDiscussionEntry.setDiscussionDatabase(discussionDatabase);
+						fullDiscussionEntry
+						.setDiscussionDatabase(discussionDatabase);
 						dbEntry = fullDiscussionEntry;
-						DatabaseManager.getInstance().updateDiscussionEntry(dbEntry);
+						DatabaseManager.getInstance().updateDiscussionEntry(
+								dbEntry);
 					}
 				}
 
@@ -421,11 +435,11 @@ public class DiscussionReplicator {
 
 		if (UserSessionTools.haveInternet(context)) {
 
-			Log.i(getClass().getSimpleName(),
-					"Internet connection is available");
+			//			Log.i(getClass().getSimpleName(),
+			//					"Internet connection is available");
 			ApplicationLog
 			.i("Internet connection is available - will replicate");
-			Log.i(getClass().getSimpleName(), "Will replicate");
+			//			Log.i(getClass().getSimpleName(), "Will replicate");
 
 			DiscussionDatabase discussionDatabase = discussionEntry
 					.getDiscussionDatabase();
@@ -444,10 +458,10 @@ public class DiscussionReplicator {
 			// }
 			// String urlForDocuments = httpType + "://" + hostName + ":"
 			// + httpPort + dbPath + "/api/data/documents/";
-			Log.i(getClass().getSimpleName(), "Accesing " + urlForDocuments);
+			//			Log.i(getClass().getSimpleName(), "Accesing " + urlForDocuments);
 			ApplicationLog.i("Accesing " + urlForDocuments);
 
-			Log.d(getClass().getSimpleName(), "Starting");
+			//			Log.d(getClass().getSimpleName(), "Starting");
 
 			ApplicationLog.d("Starting", shouldLogALot);
 
@@ -457,7 +471,7 @@ public class DiscussionReplicator {
 
 			if (authenticationCookie != "") {
 
-				ApplicationLog.d("Setting LtpaToken in request header",
+				ApplicationLog.d("Setting authentication token in request header",
 						shouldLogALot);
 
 				requestHeaders.add("Cookie", authenticationCookie);
@@ -488,8 +502,8 @@ public class DiscussionReplicator {
 						String.class);
 				jsonString = response.getBody();
 
-				Log.d(getClass().getSimpleName(), "String received length: "
-						+ jsonString.length());
+				//				Log.d(getClass().getSimpleName(), "String received length: "
+				//						+ jsonString.length());
 
 				ApplicationLog.d(
 						"String received length: " + jsonString.length(),
@@ -505,24 +519,24 @@ public class DiscussionReplicator {
 							discussionEntry = enrichDiscussionEntryFromJson(
 									discussionEntry, jsonDocument);
 						} else {
-							Log.i(getClass().getSimpleName(),
-									"No Document retrieved. Nothing to do");
+							//							Log.i(getClass().getSimpleName(),
+							//									"No Document retrieved. Nothing to do");
 							ApplicationLog
 							.i("No Document retrieved. Nothing to do");
 						}
 					} catch (Exception e) {
 						// e.printStackTrace();
-						Log.e(getClass().getSimpleName(),
-								"getmessage: " + e.getMessage());
+						//						Log.e(getClass().getSimpleName(),
+						//								"getmessage: " + e.getMessage());
 						ApplicationLog.e("Exception: " + e.getMessage());
 					}
 
 				} else {
-					Log.e(getClass().getSimpleName(),
-							"There is a login issue when accessing "
-									+ urlForDocuments);
-					Log.e(getClass().getSimpleName(),
-							"The server prompts for login");
+					//					Log.e(getClass().getSimpleName(),
+					//							"There is a login issue when accessing "
+					//									+ urlForDocuments);
+					//					Log.e(getClass().getSimpleName(),
+					//							"The server prompts for login");
 
 					ApplicationLog.e("There is a login issue when accessing "
 							+ urlForDocuments);
@@ -532,27 +546,27 @@ public class DiscussionReplicator {
 			} catch (RestClientException e1) {
 				// e1.printStackTrace();
 				String errorMessage = e1.getMessage();
-				Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
+				//				Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
 				ApplicationLog.e("Exception: " + errorMessage);
 				if (errorMessage.contains("403")) {
-					Log.i(getClass().getSimpleName(),
-							"403 - Looks like the Domino Data Service is not enabled for the database "
-									+ discussionDatabase.getDbPath());
+					//					Log.i(getClass().getSimpleName(),
+					//							"403 - Looks like the Domino Data Service is not enabled for the database "
+					//									+ discussionDatabase.getDbPath());
 					ApplicationLog
 					.i("403 - Looks like the Domino Data Service is not enabled for the database "
 							+ discussionDatabase.getDbPath());
 				} else {
 					String localizedErrorMessage = e1.getLocalizedMessage();
 					if (localizedErrorMessage != null) {
-						Log.e(getClass().getSimpleName(),
-								"localizedErrorMessage: "
-										+ localizedErrorMessage);
+						//						Log.e(getClass().getSimpleName(),
+						//								"localizedErrorMessage: "
+						//										+ localizedErrorMessage);
 						ApplicationLog.e("localizedErrorMessage: "
 								+ localizedErrorMessage);
 					} else {
-						Log.e(getClass().getSimpleName(),
-								"Unable to get data from the database "
-										+ discussionDatabase.getDbPath());
+						//						Log.e(getClass().getSimpleName(),
+						//								"Unable to get data from the database "
+						//										+ discussionDatabase.getDbPath());
 						ApplicationLog
 						.e("Unable to get data from the database "
 								+ discussionDatabase.getDbPath());
@@ -563,8 +577,8 @@ public class DiscussionReplicator {
 			}
 
 		} else {
-			Log.i(getClass().getSimpleName(),
-					"Internet connection not available - Replication not possible");
+			//			Log.i(getClass().getSimpleName(),
+			//					"Internet connection not available - Replication not possible");
 			ApplicationLog
 			.i("Internet connection not available - Replication not possible");
 		}
@@ -636,24 +650,86 @@ public class DiscussionReplicator {
 						String thisContentType = bodyItem
 								.getString("contentType");
 						if (thisContentType.contains("text/html")) {
-							Log.d(getClass().getSimpleName(),
-									"Found body item with html - adding");
+							//							Log.d(getClass().getSimpleName(),
+							//									"Found body item with html - adding");
 
 							ApplicationLog.d(
 									"Found body item with html - adding",
 									shouldLogALot);
 
-							returnValue = bodyItem.getString("data");
-						}
+							String bodyHtml = bodyItem.getString("data");
 
+							// Finding the charset - START
+							int charSetPos = thisContentType
+									.indexOf("charset="); // Returns the
+							// position of the c
+							// in the string
+							// "charset=" 8
+							// characters long
+
+							int contentTypeLength = thisContentType.length();
+
+							String charsetValue = thisContentType.substring(
+									charSetPos + 8, contentTypeLength);
+
+							ApplicationLog.d("charsetValue: " + charsetValue, shouldLogALot);
+							//							Log.d(getClass().getSimpleName(), "charsetValue: " + charsetValue);
+							// Finding the charset - END
+
+							// Checking for quoted-printable content - START
+							//contentTransferEncoding
+							String bodyHtmlDecoded = ""; 
+							if (bodyItem.has("contentTransferEncoding")) {
+								String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
+
+								ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldLogALot);
+								//								Log.d(getClass().getSimpleName(), "contentTransferEncoding is specified as "  + contentTransferEncoding + " will do decoding");
+
+
+								QuotedPrintableCodec dims = new QuotedPrintableCodec(); 
+
+								//char 33 til 126
+
+								// Stripping newline characters as they will make QuotedPrintableCodec throw an Exception
+								String newstr = bodyHtml.replaceAll("=\r\n", "");
+
+								//								bodyHtml = bodyHtml.substring(0, 71);
+								bodyHtml = newstr;
+								ApplicationLog.d("decoding: " + bodyHtml, shouldLogALot);
+								//								Log.d(getClass().getSimpleName(), "decoding: " + bodyHtml);
+
+								try {
+									bodyHtmlDecoded = dims.decode(bodyHtml, charsetValue);
+								} catch (DecoderException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} catch (UnsupportedEncodingException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+
+								ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldLogALot);
+								//								Log.d(getClass().getSimpleName(), "decoded: " + bodyHtmlDecoded);
+
+
+							}
+
+							// Checking for quoted-printable content - END
+
+							if (bodyHtmlDecoded.equals("")) {
+								returnValue = bodyHtml;
+							} else {
+								returnValue = bodyHtmlDecoded;
+							}
+						}
 					}
 
 				}
 			}
 
 			catch (JSONException e) {
-				Log.d(getClass().getSimpleName(), "Unable to find field "
-						+ fieldName);
+				//				Log.d(getClass().getSimpleName(), "Unable to find field "
+				//						+ fieldName);
 
 				ApplicationLog.d("Unable to find field " + fieldName,
 						shouldLogALot);
@@ -666,8 +742,8 @@ public class DiscussionReplicator {
 				returnValue = jsonDocument.getString(fieldName);
 			} catch (JSONException e) {
 				// e.printStackTrace();
-				Log.w(getClass().getSimpleName(), "Unable to find field "
-						+ fieldName);
+				//				Log.w(getClass().getSimpleName(), "Unable to find field "
+				//						+ fieldName);
 
 				ApplicationLog.d("Unable to find field " + fieldName,
 						shouldLogALot);
@@ -712,63 +788,111 @@ public class DiscussionReplicator {
 		MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<String, String>();
 		requestBody.add("username", userName);
 		requestBody.add("password", password);
+		ApplicationLog.d("not logging in with redirectto", shouldLogALot);
 		requestBody.add("redirectto", redirectToUrl);
 
-		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(requestBody, requestHeaders);
-		ApplicationLog.d( "HTTP connection now", shouldLogALot);
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(
+				requestBody, requestHeaders);
+		ApplicationLog.d("HTTP connection now", shouldLogALot);
 		ResponseEntity<?> httpResponse;
 		try {
-			httpResponse = template.exchange(urlForLogin,
-					HttpMethod.POST, request, null);
+
+			httpResponse = template.exchange(urlForLogin, HttpMethod.POST,
+					request, null);
 			HttpHeaders responseHeaders = httpResponse.getHeaders();
 
 			if (responseHeaders.isEmpty()) {
 				ApplicationLog.d("No response headers", shouldLogALot);
 			} else {
-				List<String> val = responseHeaders.get("Set-Cookie");
-				if (null != val) {
-					String cookie = val.get(0);
-					ApplicationLog.d("Set-Cookie: " + cookie, shouldLogALot);
+
+				//Working out if we already have a Cookie or if we have a Set-cookie to work with - START
+				List<String> setCookieList = responseHeaders.get("Set-Cookie");
+//				List<String> cookieList = responseHeaders.get("Cookie");
+//
+//				List<String> listToWorkOn = null;
+//				if (null != cookieList) {
+//					listToWorkOn = setCookieList;
+//				} else {
+//					listToWorkOn = cookieList;
+//				}
+				//Working out if we already have a Cookie or if we have a Set-cookie to work with - END				
+				if (null != setCookieList) {
+					String cookie = setCookieList.get(0);  //Assuming the cookie we are looking for will always be first
+					ApplicationLog.d("Cookie: " + cookie, shouldLogALot);
+
+					int indexOfEndPos = 0; //Position of last character in the coookie string
+					if (cookie.contains(";")) {
+						indexOfEndPos = cookie.indexOf(";");
+					} else {
+						indexOfEndPos = cookie.length();
+					}
+
 					if (cookie.startsWith("LtpaToken=")) {
 						ApplicationLog.d("Cookie is an LtpaToken", shouldLogALot);
-						String actualToken = (String) cookie.subSequence(0,
-								cookie.indexOf(";"));
-						if (actualToken != null) {
-							ApplicationLog.d("Token value= " + actualToken,
-									shouldLogALot);
-							authenticationCookie = actualToken;
-						} else {
-							ApplicationLog.d("Did not get the LtpaToken value",
-									shouldLogALot);
-						}
+					} else if (cookie.startsWith("DomAuthSessID=")) {
+						ApplicationLog.d("Cookie is a DomAuthSessID", shouldLogALot);
 					}
+
+					String actualToken = (String) cookie.subSequence(0,indexOfEndPos);
+					if (actualToken != null) {
+						ApplicationLog.d("Token value= " + actualToken, shouldLogALot);
+						authenticationCookie = actualToken;
+					} else {
+						ApplicationLog.d("Did not get the Authetication token value", shouldLogALot);
+					}
+
+					//					REM 1/4-2013 - hopefully handlede with the above, more simple code
+					//					if (cookie.startsWith("LtpaToken=")) {
+					//						ApplicationLog.d("Cookie is an LtpaToken", shouldLogALot);
+					//						String actualToken = (String) cookie.subSequence(0,indexOfEndPos);
+					//						if (actualToken != null) {
+					//							ApplicationLog.d("Token value= " + actualToken, shouldLogALot);
+					//							authenticationCookie = actualToken;
+					//						} else {
+					//							ApplicationLog.d("Did not get the LtpaToken value", shouldLogALot);
+					//						}
+					//					} else if (cookie.startsWith("DomAuthSessID=")) {
+					//						ApplicationLog.d("Cookie is a DomAuthSessID", shouldLogALot);
+					//						String actualToken = (String) cookie.subSequence(0, indexOfEndPos);
+					//						if (actualToken != null) {
+					//							ApplicationLog.d("Token value= " + actualToken, shouldLogALot);
+					//							authenticationCookie = actualToken;
+					//						} else {
+					//							ApplicationLog.d("Did not get the DomAuthSessID value", shouldLogALot);
+					//						}
+					//					}
 				} else {
-					ApplicationLog.d("No Set-Cookie", shouldLogALot);
+					ApplicationLog.d("No Authentication Cookie available", shouldLogALot);
 				}
-			} 
+			}
 
 		} catch (RestClientException e) {
 			String errorMessage = e.getMessage();
 			if (errorMessage == null) {
 				errorMessage = "Error message not available";
 			}
-			Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
+			//			Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
 			ApplicationLog.e("RestClientException: " + errorMessage);
 			e.printStackTrace();
-		} catch (Exception e){
+		} catch (Exception e) {
 			String errorMessage = e.getMessage();
 			if (errorMessage == null) {
 				errorMessage = "Error message not available";
 			}
-			Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
+			//			Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
 			ApplicationLog.e("Exception: " + errorMessage);
 			e.printStackTrace();
 		}
-		
+
 		if (authenticationCookie.contentEquals("")) {
 			ApplicationLog.i("Did not get an authentication cookie");
 		}
 
 		return authenticationCookie;
 	}
+
+
+
+
 }
+//<html><body><font size=3D\"2\" face=3D\"sans-serif\">F=F8rst noget tekst: s=\r\nadasdasd<\/font><br>\r\n<font size=3D\"2\" face=3D\"sans-serif\">S=E5 med st=F8rre tekst<\/font><br>=\r\n\r\n<font size=3D\"3\" face=3D\"sans-serif\">S=E5 med endnu st=F8rre tekst<\/fon=\r\nt><br>\r\n<font size=3D\"2\" face=3D\"sans-serif\">Nu bare med bold<\/font><br>\r\n<font size=3D\"2\" face=3D\"sans-serif\">helt almindelig tekst<\/font><\/body=\r\n><\/html>=\r\n

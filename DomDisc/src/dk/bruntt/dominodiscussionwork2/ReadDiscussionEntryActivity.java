@@ -1,19 +1,14 @@
 package dk.bruntt.dominodiscussionwork2;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-
-import org.apache.commons.codec.Charsets;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.net.QCodec;
-import org.apache.commons.codec.net.QuotedPrintableCodec;
-
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Html;
-import android.util.Log;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -23,8 +18,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
 
-import dk.brunt.discussionwork2.db.DatabaseManager;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
 
@@ -38,11 +34,13 @@ public class ReadDiscussionEntryActivity extends SherlockActivity {
 	private TextView bodyView;
 	private WebView webView;
 	private TextView subjectView;
+	private boolean shouldLogALot = false;
 	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		shouldLogALot = getLogALot(this);
         ViewGroup contentView = (ViewGroup) getLayoutInflater().inflate(R.layout.read_discussion_entry, null);
 //        editName = (EditText) contentView.findViewById(R.id.edit_name);
 //        editDescription = (EditText) contentView.findViewById(R.id.edit_description);
@@ -58,7 +56,20 @@ public class ReadDiscussionEntryActivity extends SherlockActivity {
         
         setupDiscussionDatabase();
         setupDiscussionEntry();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
+	
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpTo(this, new Intent(this, DiscussionEntriesViewActivity.class));
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }	
+	
+	
 	
 	private void setupDiscussionDatabase() {
 		Bundle bundle = getIntent().getExtras();
@@ -74,31 +85,15 @@ public class ReadDiscussionEntryActivity extends SherlockActivity {
 			String discussionEntryId = bundle.getString(Constants.keyDiscussionEntryId);
 			discussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(discussionEntryId);
 			subjectView.setText(discussionEntry.getSubject());
-//			bodyView.setText(Html.fromHtml(discussionEntry.getBody()))   ;
-//			webView.loadData(discussionEntry.getBody(), "text/html", null);
-//			String bodyHtml = "=?" + "ISO-8859-1" + discussionEntry.getBody() + "?=";
+
 			String bodyHtml = discussionEntry.getBody() ;
-			Log.d(getClass().getSimpleName(), "bodyHtml: " + bodyHtml);
-			String bodyHtmlDecoded = "";
-//			QCodec q = new QCodec();
-			QuotedPrintableCodec dims = new QuotedPrintableCodec(); 
-			//Charset.forName("ISO-8859-1")
-					
-			//char 33 til 126
+//			Log.d(getClass().getSimpleName(), "bodyHtml: " + bodyHtml);
+//			ApplicationLog.d("bodyHtml: " + bodyHtml, shouldLogALot);
 			
-			 //Synes at teksten svinger mellem at være quoted/printable og ikke
-			
-			bodyHtml = bodyHtml.substring(0, 50);
-					try {
-						bodyHtmlDecoded = dims.decode(bodyHtml);
-					} catch (DecoderException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			
-			
-			
-			webView.loadDataWithBaseURL(null, bodyHtmlDecoded, "text/html", "ISO-8859-1", null);
+			// UTF-8 to make national characters look correct
+			webView.loadDataWithBaseURL(null, bodyHtml, "text/html", "UTF-8", null);
+
+			//			webView.loadData(bodyHtml, "text/html", "ISO-8859-1");
 //			bodyView.setText(discussionEntry.getBody());
 //			deleteButton.setVisibility(View.VISIBLE);
 //			setupDeleteButton();
@@ -180,5 +175,10 @@ public class ReadDiscussionEntryActivity extends SherlockActivity {
 			discussionEntry.setDiscussionDatabase(discussionDatabase);
 			DatabaseManager.getInstance().updateDiscussionEntry(discussionEntry);
 		}
+	}
+	private static boolean getLogALot(Context ctxt) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(ctxt);
+		return prefs.getBoolean("checkbox_preference_logalot", false);
 	}
 }

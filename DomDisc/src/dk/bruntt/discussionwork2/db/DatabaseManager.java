@@ -1,4 +1,4 @@
-package dk.brunt.discussionwork2.db;
+package dk.bruntt.discussionwork2.db;
 
 import java.sql.SQLException;
 import java.util.List;

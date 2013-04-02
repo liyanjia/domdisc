@@ -1,4 +1,4 @@
-package dk.brunt.discussionwork2.db;
+package dk.bruntt.discussionwork2.db;
 
 import android.content.Context;
 import android.database.SQLException;

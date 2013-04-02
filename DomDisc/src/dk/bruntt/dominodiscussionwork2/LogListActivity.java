@@ -15,7 +15,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-import dk.brunt.discussionwork2.db.DatabaseManager;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.AppLog;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 

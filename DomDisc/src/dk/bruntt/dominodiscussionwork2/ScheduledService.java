@@ -22,21 +22,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import dk.brunt.discussionwork2.db.DatabaseManager;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 
 public class ScheduledService extends WakefulIntentService {
+	
+	boolean shouldLogALot = false;
 	public ScheduledService() {
 		super("ScheduledService");
 	}
 
 	@Override
 	protected void doWakefulWork(Intent intent) {
-		Log.d(getClass().getSimpleName(), "I ran from DomDisc service");
+//		Log.d(getClass().getSimpleName(), "I ran from DomDisc service");
 		DatabaseManager.init(this);
 		Context applicationContext = getApplicationContext();
 		ApplicationLog.i("Background replication service starting");
@@ -46,7 +47,7 @@ public class ScheduledService extends WakefulIntentService {
 		GregorianCalendar now = new GregorianCalendar();
 		setLastReplication(now, applicationContext);
 		
-		boolean shouldLogALot = getLogALot(applicationContext);
+		shouldLogALot = getLogALot(applicationContext);
 
 		try {
 			double batteryLevel = -1;
@@ -54,8 +55,7 @@ public class ScheduledService extends WakefulIntentService {
 			batteryLevel = getBatteryLevel(batteryLevel);
 			ApplicationLog.d("Current battery level: " + batteryLevel, shouldLogALot);
 			if (batteryLevel < 0.2) {
-				Log.i(getClass().getSimpleName(), "replication is disabled because of low battery - " + batteryLevel);
-				ApplicationLog.i("background replication is disabled because of low battery - " + batteryLevel + " (below 20%)");
+								ApplicationLog.i("background replication is disabled because of low battery - " + batteryLevel + " (below 20%)");
 			} else {
 				DiscussionReplicator replicator = new DiscussionReplicator(applicationContext);
 
@@ -67,10 +67,8 @@ public class ScheduledService extends WakefulIntentService {
 					for (int i = 0, size = discussionDatabases.size(); i < size; i++)  
 					{  
 						DiscussionDatabase discussionDatabase = discussionDatabases.get(i);
-						Log.i(getClass().getSimpleName(), "Replicating " + discussionDatabase.getName());
-						Log.i(getClass().getSimpleName(), " path: " + discussionDatabase.getDbPath());
 						ApplicationLog.i("background Replicating " + discussionDatabase.getName());
-						ApplicationLog.i(" path: " + discussionDatabase.getDbPath());
+//						ApplicationLog.i(" path: " + discussionDatabase.getDbPath());
 						replicator.replicateDiscussionDatabase(discussionDatabase);
 						ApplicationLog.i("== == == == ==");
 					}
@@ -81,15 +79,12 @@ public class ScheduledService extends WakefulIntentService {
 
 
 				} else {
-					Log.i(getClass().getSimpleName(), "Background replication stops - no databases configured");
 					ApplicationLog.i("Background replication stops - no databases configured");
 				}
 
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-
-			Log.e(getClass().getSimpleName(), "Background replication stops due to Exception");
 			ApplicationLog.e("Background replication stops due to Exception");
 			ApplicationLog.e(e.getMessage());
 		}
@@ -99,15 +94,21 @@ public class ScheduledService extends WakefulIntentService {
 
 
 	private double getBatteryLevel(double batteryLevel) {
-		//Batteri: http://stackoverflow.com/questions/3661464/get-battery-level-before-broadcast-receiver-responds-for-intent-action-battery-c
+		//Battery: http://stackoverflow.com/questions/3661464/get-battery-level-before-broadcast-receiver-responds-for-intent-action-battery-c
 		Intent batteryIntent = this.getApplicationContext().registerReceiver(null,
 				new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 		int rawlevel = batteryIntent.getIntExtra("level", -1);
 		double scale = batteryIntent.getIntExtra("scale", -1);
+		ApplicationLog.d("battery rawLevel: " + rawlevel, shouldLogALot);
+		ApplicationLog.d("battery scale: " + scale, shouldLogALot);
+		
+		if (rawlevel == 0) {
+			ApplicationLog.i("battery rawLevel: " + rawlevel + " looks wrong. Assuming 50. Will not be able to properly measure battery level on this device.");
+			rawlevel = 50;
+		}
 		if (rawlevel >= 0 && scale > 0) {
 			batteryLevel = rawlevel / scale;
 		}
-		//		Log.d(getClass().getSimpleName(), " Battery level: "+ batteryLevel);
 		return batteryLevel;
 	}
 
@@ -145,7 +146,6 @@ public class ScheduledService extends WakefulIntentService {
 	 */
 	private int minutesSinceLastReplication(Context applicationContext) {
 		GregorianCalendar lastReplication = getLastreplication(applicationContext);
-		//		ApplicationLog.i("Backgrund service was last run at " + lastReplication.toString());
 		GregorianCalendar now = new GregorianCalendar();
 
 		long timePassedSinceLastReplication = now.getTimeInMillis() - lastReplication.getTimeInMillis();

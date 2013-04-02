@@ -1,6 +1,6 @@
 package dk.bruntt.dominodiscussionwork2;
 
-import dk.brunt.discussionwork2.db.DatabaseManager;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
 import android.app.Activity;

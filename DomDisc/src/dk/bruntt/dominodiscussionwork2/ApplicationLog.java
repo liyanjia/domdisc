@@ -2,13 +2,13 @@ package dk.bruntt.dominodiscussionwork2;
 
 import java.util.Date;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
-import dk.brunt.discussionwork2.db.DatabaseManager;
+import android.util.Log;
+import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.AppLog;
 
 public class ApplicationLog {
+	
+	private static String TAG = "DomDisc";
 	
 	/**
 	 * Log Error
@@ -17,6 +17,7 @@ public class ApplicationLog {
 	public final static void e(String logText) {
 		String level = "e";
 		add(logText, level);
+		Log.e(TAG, logText);
 	}
 
 	/**
@@ -26,6 +27,7 @@ public class ApplicationLog {
 	public final static void i(String logText) {
 		String level = "i";
 		add(logText, level);
+		Log.i(TAG, logText);
 	}
 
 //	/**
@@ -47,6 +49,7 @@ public class ApplicationLog {
 		if (shouldCommit) {
 			add(logText, level);	
 		}
+		Log.d(TAG, logText);
 	}
 
 	/**
@@ -56,6 +59,7 @@ public class ApplicationLog {
 	public final static void w(String logText) {
 		String level = "w";
 		add(logText, level);
+		Log.w(TAG, logText);
 	}
 	
 	private final static void add(String logText, String level) {

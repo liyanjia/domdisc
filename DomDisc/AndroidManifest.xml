@@ -38,7 +38,11 @@
             android:label="Add discussion entry" />
         <activity
             android:name=".ReadDiscussionEntryActivity"
-            android:label="Read discussion entry" />
+            android:label="Read discussion entry" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".DiscussionEntriesViewActivity" />
+            </activity>
         <activity
             android:name=".LogListActivity"
             android:label="Log Entries">
