@@ -128,9 +128,8 @@ public class DiscussionReplicator {
 				requestHeaders.add("Cookie", authenticationCookie);
 
 				requestHeaders.add("Referer", urlForDocuments);
-				// requestHeaders
-				// .setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22");
 				requestHeaders.setCacheControl("max-age=0");
+				requestHeaders.set("Connection", "Close"); //to remove  EOFException
 
 				HttpEntity<?> requestEntity = new HttpEntity<Object>(
 						requestHeaders);
@@ -158,93 +157,53 @@ public class DiscussionReplicator {
 							"String received length: " + jsonString.length(),
 							shouldLogALot);
 
-					// Log.d(getClass().getSimpleName(), jsonString);
-
 					if (!isThisALoginForm(jsonString)) {
 						try {
 							JSONArray jsonArray = new JSONArray(jsonString);
-
-							//							Log.d(getClass().getSimpleName(),
-							//									"Number of entries " + jsonArray.length());
 
 							ApplicationLog.d(
 									"Number of entries " + jsonArray.length(),
 									shouldLogALot);
 
 							if (jsonArray.length() > 0) {
-								handleJsonDiscussionEntries(jsonArray,
-										discussionDatabase);
+								handleJsonDiscussionEntries(jsonArray, discussionDatabase);
 
 							} else {
-								//								Log.i(getClass().getSimpleName(),
-								//										"No entries retrieved. Nothing to do");
-								ApplicationLog
-								.i("No entries retrieved. Nothing to do");
+								ApplicationLog.i("No entries retrieved. Nothing to do");
 							}
 
 						} catch (Exception e) {
-							// e.printStackTrace();
-							//							Log.e(getClass().getSimpleName(), "getmessage: "
-							//									+ e.getMessage());
 							ApplicationLog.e("Exception" + e.getMessage());
 						}
 
 					} else {
-						//						Log.e(getClass().getSimpleName(),
-						//								"There is a login issue when accessing "
-						//										+ urlForDocuments);
-						//						Log.e(getClass().getSimpleName(), "The server at "
-						//								+ hostName + " prompts for login");
-						ApplicationLog
-						.e("There is a login issue when accessing "
-								+ urlForDocuments);
-						ApplicationLog.e("The server at " + hostName
-								+ " prompts for login");
-
+						ApplicationLog.e("There is a login issue when accessing " + urlForDocuments);
+						ApplicationLog.e("The server at " + hostName + " prompts for login");
 					}
 
 				} catch (RestClientException e1) {
-					// e1.printStackTrace();
 					String errorMessage = e1.getMessage();
 					if (errorMessage == null) {
 						errorMessage = "Error message not available";
 					}
-					//					Log.e(getClass().getSimpleName(), "getmessage: "
-					//							+ errorMessage);
 					ApplicationLog.e("Exception: " + errorMessage);
 
 					if (errorMessage.contains("403")) {
-						//						Log.i(getClass().getSimpleName(),
-						//								"403 - Looks like the Domino Data Service is not enabled for the database "
-						//										+ discussionDatabase.getDbPath());
-						ApplicationLog
-						.i("403 - Looks like the Domino Data Service is not enabled for the database "
-								+ discussionDatabase.getDbPath());
+						ApplicationLog.i("403 - Looks like the Domino Data Service is not enabled for the database " + discussionDatabase.getDbPath());
 					}
 
 					else if (errorMessage.contains("404")) {
 						String myErrorMessage = "404 - Looks like the Domino Database-path is wrong - typing error in the Configuration? ";
-						//						Log.i(getClass().getSimpleName(), myErrorMessage
-						//								+ discussionDatabase.getDbPath());
-						ApplicationLog.i(myErrorMessage + " "
-								+ discussionDatabase.getDbPath());
+						ApplicationLog.i(myErrorMessage + " " + discussionDatabase.getDbPath());
 					}
 
 					else {
 						String localizedErrorMessage = e1.getLocalizedMessage();
 						if (localizedErrorMessage != null) {
-							//							Log.e(getClass().getSimpleName(),
-							//									"localizedErrorMessage: "
-							//											+ localizedErrorMessage);
-							ApplicationLog.e("localizedErrorMessage: "
-									+ localizedErrorMessage);
+							ApplicationLog.e("localizedErrorMessage: " + localizedErrorMessage);
 						} else {
-							//							Log.e(getClass().getSimpleName(),
-							//									"Unable to get data from the database "
-							//											+ discussionDatabase.getDbPath());
 							ApplicationLog
-							.e("Unable to get data from the database "
-									+ discussionDatabase.getDbPath());
+							.e("Unable to get data from the database " + discussionDatabase.getDbPath());
 						}
 					}
 					e1.printStackTrace();
@@ -287,8 +246,7 @@ public class DiscussionReplicator {
 	 * @param discussionArray
 	 * @param discussionDatabase
 	 */
-	private void handleJsonDiscussionEntries(JSONArray discussionArray,
-			DiscussionDatabase discussionDatabase) {
+	private void handleJsonDiscussionEntries(JSONArray discussionArray, DiscussionDatabase discussionDatabase) {
 
 		ArrayList<DiscussionEntry> serverDiscussionEntryList = new ArrayList<DiscussionEntry>();
 
@@ -302,31 +260,15 @@ public class DiscussionReplicator {
 					String unid = jsonObject.getString("@unid");
 					String href = jsonObject.getString("@href");
 
-					// Log.d(getClass().getSimpleName(), "- ENTRY -");
-					// Log.d(getClass().getSimpleName(), "modified: " +
-					// modified);
-					//					Log.d(getClass().getSimpleName(), "entry with unid: "
-					//							+ unid);
-
 					ApplicationLog.d("entry with unid: " + unid, shouldLogALot);
 
-					// Log.d(getClass().getSimpleName(), "href: " + href);
-
 					DiscussionEntry discussionEntry = new DiscussionEntry();
-					// Log.d(getClass().getSimpleName(), "setHrefhref");
 					discussionEntry.setHref(href);
-					// Log.d(getClass().getSimpleName(), "setUnid");
 					discussionEntry.setUnid(unid);
-					// Log.d(getClass().getSimpleName(), "setModified");
 					discussionEntry.setModified(modified);
-					// Log.d(getClass().getSimpleName(), "add to list");
 					serverDiscussionEntryList.add(discussionEntry);
-					// Log.d(getClass().getSimpleName(), "add to list done");
 				} catch (JSONException e) {
-					//					Log.e(getClass().getSimpleName(),
-					//							"Error while accessing JSON object values");
-					ApplicationLog
-					.e("Error while accessing JSON object values");
+					ApplicationLog.e("Error while accessing JSON object values");
 					e.printStackTrace();
 				}
 			} catch (JSONException e) {
@@ -334,94 +276,80 @@ public class DiscussionReplicator {
 			}
 		} // indsat slut her
 
-		/*
-		 * Check all retrieved DiscussionDatabaseEntries - do they exist in
-		 * database if no: retrieve content and add if yes: check if modified is
-		 * changed if no: next if yes: retrieve newer content and update
-		 */
+
 		if ((serverDiscussionEntryList == null)
 				|| (serverDiscussionEntryList.isEmpty())) {
-			//			Log.i(getClass().getSimpleName(),
-			//					"The JSON retrievede did not contain any documents");
-			ApplicationLog
-			.i("The JSON retrievede did not contain any documents");
+			ApplicationLog.i("The JSON retrievede did not contain any documents");
 		} else {
-			//			Log.i(getClass().getSimpleName(),
-			//					"Checking all downloaded entries: are they already stored locally?");
+			/*
+			 * Check all retrieved DiscussionDatabaseEntries - do they exist in
+			 * database if no: retrieve content and add if yes: check if modified is
+			 * changed if no: next if yes: retrieve newer content and update
+			 */
+			ApplicationLog.d("Checking all downloaded entries: are they already stored locally?", shouldLogALot);
 
-			ApplicationLog
-			.d("Checking all downloaded entries: are they already stored locally?",
-					shouldLogALot);
-
-			Iterator<DiscussionEntry> serverDiscussionEntryListIterator = serverDiscussionEntryList
-					.iterator();
+			Iterator<DiscussionEntry> serverDiscussionEntryListIterator = serverDiscussionEntryList.iterator();
 			while (serverDiscussionEntryListIterator.hasNext()) {
-				DiscussionEntry currentEntry = serverDiscussionEntryListIterator
-						.next();
+				DiscussionEntry currentEntry = serverDiscussionEntryListIterator.next();
 				String unid = currentEntry.getUnid();
 				// Check if the entry is already in the database
-				// Her er jeg
-				//				Log.d(getClass().getSimpleName(), "Lookup for unid " + unid);
-
 				ApplicationLog.d("Lookup for unid: " + unid, shouldLogALot);
-
-				DiscussionEntry dbEntry = DatabaseManager.getInstance()
-						.getDiscussionEntryWithId(unid);
+				DiscussionEntry dbEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(unid);
 
 				if (dbEntry == null) {
-					//					Log.d(getClass().getSimpleName(),
-					//							"This entry has not been stored before - creating newDiscussionEntry");
-
-					ApplicationLog
-					.d("This entry has not been stored before - creating newDiscussionEntry",
-							shouldLogALot);
+					ApplicationLog.d("This entry has not been stored before - creating newDiscussionEntry", shouldLogALot);
 
 					currentEntry.setDiscussionDatabase(discussionDatabase);
 					DiscussionEntry fullDiscussionEntry = getFullEntryFromServer(currentEntry);
-					DatabaseManager.getInstance().createDiscussionEntry(
-							fullDiscussionEntry);
-					//					Log.d(getClass().getSimpleName(),
-					//							"This entry has been stored with values: "
-					//									+ fullDiscussionEntry.getSubject());
-
-					ApplicationLog.d("This entry has been stored with values: "
-							+ fullDiscussionEntry.getSubject(), shouldLogALot);
+					DatabaseManager.getInstance().createDiscussionEntry(fullDiscussionEntry);
+					ApplicationLog.d("This entry has been stored with values: " + fullDiscussionEntry.getSubject(), shouldLogALot);
 
 				} else {
-					//					Log.d(getClass().getSimpleName(),
-					//							"This entry is already in the database: "
-					//									+ dbEntry.getSubject());
-
-					ApplicationLog.d("This entry is already in the database: "
-							+ dbEntry.getSubject(), shouldLogALot);
-					ApplicationLog.d("Checking if modified dates are the same",
-							shouldLogALot);
+					ApplicationLog.d("This entry is already in the database: " + dbEntry.getSubject(), shouldLogALot);
+					ApplicationLog.d("Checking if modified dates are the same", shouldLogALot);
 
 					String currentEntryModified = currentEntry.getModified();
 					String dbEntryModified = dbEntry.getModified();
 					if (currentEntryModified.contentEquals(dbEntryModified)) {
-						ApplicationLog.d("Modified date is unchanged",
-								shouldLogALot);
+						ApplicationLog.d("Modified date is unchanged", shouldLogALot);
 					} else {
 						ApplicationLog.d(
-								"Modified date is changed. Updating dbEntry",
-								shouldLogALot);
+								"Modified date is changed. Updating dbEntry", shouldLogALot);
 						DiscussionEntry fullDiscussionEntry = getFullEntryFromServer(currentEntry);
-						fullDiscussionEntry
-						.setDiscussionDatabase(discussionDatabase);
+						fullDiscussionEntry.setDiscussionDatabase(discussionDatabase);
 						dbEntry = fullDiscussionEntry;
-						DatabaseManager.getInstance().updateDiscussionEntry(
-								dbEntry);
+						DatabaseManager.getInstance().updateDiscussionEntry(dbEntry);
 					}
 				}
-
+				/**
+				 * Done checking if new or modified entries were downloaded
+				 */		
 			}
 
+			/**
+			 * Checking all locally stored entries - are they in the download
+			 * if not - delete the local entry
+			 */
+			//			ArrayList<DiscussionEntry> localDiscussionEntryList = new ArrayList<DiscussionEntry>();
+			//			localDiscussionEntryList = (ArrayList<DiscussionEntry>) discussionDatabase.getDiscussionEntries();
+						ApplicationLog.d("Checking all database entries: should they be deleted? - not yet implemented", shouldLogALot);
+			//
+			//			Iterator<DiscussionEntry> localDiscussionEntryListIterator = localDiscussionEntryList.iterator();
+			//			while (localDiscussionEntryListIterator.hasNext()) {
+			//				DiscussionEntry currentEntry = localDiscussionEntryListIterator.next();
+			//				String unid = currentEntry.getUnid();
+			//				// Check if the was downloaded 
+			//				ApplicationLog.d("Lookup for unid: " + unid, shouldLogALot);
+			//				DiscussionEntry serverEntry = serverDiscussionEntryList.
+			//						
+			//						UPS - serverlisten bør nok være et hashmap så jeg kan slå op med unid
+			//				
 		}
 
 	}
 
-	// Fjernet slut her
+
+
 
 	/**
 	 * Retrieve a full entry from the server
@@ -468,6 +396,7 @@ public class DiscussionReplicator {
 			// Add the gzip Accept-Encoding header
 			HttpHeaders requestHeaders = new HttpHeaders();
 			requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
+			requestHeaders.set("Connection", "Close"); //to remove  EOFException
 
 			if (authenticationCookie != "") {
 
@@ -477,14 +406,6 @@ public class DiscussionReplicator {
 				requestHeaders.add("Cookie", authenticationCookie);
 			}
 
-			// if (shouldLogALot) {
-			// ApplicationLog.d("Setting LtpaToken");
-			// }
-			// requestHeaders
-			// .set("LtpaToken",
-			// "AAECAzUxNEEwNkFFNTE0QTIyQ0VDTj1KZW5zIEJydW50dC9PPWJydW50dDpULkwtLx2bdYtJ+Z8Vv1qS9dQL");
-			// requestHeaders.set("SessionID",
-			// "C0386B96E48178B83A7E778E710289F19773F76D");
 			HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
 
 			RestTemplate restTemplate = new RestTemplate();
@@ -493,10 +414,6 @@ public class DiscussionReplicator {
 
 			String jsonString;
 			try {
-				// jsonString = restTemplate.getForObject(urlForDocuments,
-				// String.class);
-				// Make the HTTP GET request, marshaling the response to a
-				// String
 				ResponseEntity<String> response = restTemplate.exchange(
 						urlForDocuments, HttpMethod.GET, requestEntity,
 						String.class);
@@ -783,6 +700,7 @@ public class DiscussionReplicator {
 		template.getMessageConverters().add(new FormHttpMessageConverter());
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
+		requestHeaders.set("Connection", "Close"); //to remove  EOFException
 		ApplicationLog.d("Getting LtpaToken and SessionID", shouldLogALot);
 
 		MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<String, String>();
@@ -807,14 +725,14 @@ public class DiscussionReplicator {
 
 				//Working out if we already have a Cookie or if we have a Set-cookie to work with - START
 				List<String> setCookieList = responseHeaders.get("Set-Cookie");
-//				List<String> cookieList = responseHeaders.get("Cookie");
-//
-//				List<String> listToWorkOn = null;
-//				if (null != cookieList) {
-//					listToWorkOn = setCookieList;
-//				} else {
-//					listToWorkOn = cookieList;
-//				}
+				//				List<String> cookieList = responseHeaders.get("Cookie");
+				//
+				//				List<String> listToWorkOn = null;
+				//				if (null != cookieList) {
+				//					listToWorkOn = setCookieList;
+				//				} else {
+				//					listToWorkOn = cookieList;
+				//				}
 				//Working out if we already have a Cookie or if we have a Set-cookie to work with - END				
 				if (null != setCookieList) {
 					String cookie = setCookieList.get(0);  //Assuming the cookie we are looking for will always be first
@@ -892,7 +810,4 @@ public class DiscussionReplicator {
 	}
 
 
-
-
 }
-//<html><body><font size=3D\"2\" face=3D\"sans-serif\">F=F8rst noget tekst: s=\r\nadasdasd<\/font><br>\r\n<font size=3D\"2\" face=3D\"sans-serif\">S=E5 med st=F8rre tekst<\/font><br>=\r\n\r\n<font size=3D\"3\" face=3D\"sans-serif\">S=E5 med endnu st=F8rre tekst<\/fon=\r\nt><br>\r\n<font size=3D\"2\" face=3D\"sans-serif\">Nu bare med bold<\/font><br>\r\n<font size=3D\"2\" face=3D\"sans-serif\">helt almindelig tekst<\/font><\/body=\r\n><\/html>=\r\n

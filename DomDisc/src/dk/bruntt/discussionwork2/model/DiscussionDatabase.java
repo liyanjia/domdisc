@@ -58,6 +58,9 @@ public class DiscussionDatabase {
 		this.discussionEntries = discussionEntries;
 	}
 
+	/**
+	 * @return List<DiscussionEntry> of all stored DiscussionEntries
+	 */
 	public List<DiscussionEntry> getDiscussionEntries() {
 		ArrayList<DiscussionEntry> itemList = new ArrayList<DiscussionEntry>();
 		for (DiscussionEntry discussionEntry : discussionEntries) {
