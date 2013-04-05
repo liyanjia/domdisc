@@ -193,7 +193,7 @@ public class DiscussionEntriesViewActivity extends SherlockActivity implements
 					discussionDatabase.getId());
 			startActivity(intent);
 			return true;
-		case R.id.menu_refresh_log:
+		case R.id.menu_refresh:
 			// refresh
 			setupListView();
 			return true;

@@ -2,8 +2,12 @@ package dk.bruntt.dominodiscussionwork2;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.net.QuotedPrintableCodec;
@@ -248,7 +252,8 @@ public class DiscussionReplicator {
 	 */
 	private void handleJsonDiscussionEntries(JSONArray discussionArray, DiscussionDatabase discussionDatabase) {
 
-		ArrayList<DiscussionEntry> serverDiscussionEntryList = new ArrayList<DiscussionEntry>();
+		//		ArrayList<DiscussionEntry> serverDiscussionEntryList = new ArrayList<DiscussionEntry>();
+		HashMap<String, DiscussionEntry> serverDiscussionEntryMap = new HashMap<String, DiscussionEntry>();
 
 		for (int i = 0; i < discussionArray.length(); i++) {
 			JSONObject jsonObject;
@@ -266,7 +271,8 @@ public class DiscussionReplicator {
 					discussionEntry.setHref(href);
 					discussionEntry.setUnid(unid);
 					discussionEntry.setModified(modified);
-					serverDiscussionEntryList.add(discussionEntry);
+					//					serverDiscussionEntryList.add(discussionEntry);  // Should be removed 
+					serverDiscussionEntryMap.put(unid, discussionEntry);
 				} catch (JSONException e) {
 					ApplicationLog.e("Error while accessing JSON object values");
 					e.printStackTrace();
@@ -277,8 +283,7 @@ public class DiscussionReplicator {
 		} // indsat slut her
 
 
-		if ((serverDiscussionEntryList == null)
-				|| (serverDiscussionEntryList.isEmpty())) {
+		if((serverDiscussionEntryMap == null) || (serverDiscussionEntryMap.isEmpty())) {
 			ApplicationLog.i("The JSON retrievede did not contain any documents");
 		} else {
 			/*
@@ -287,10 +292,12 @@ public class DiscussionReplicator {
 			 * changed if no: next if yes: retrieve newer content and update
 			 */
 			ApplicationLog.d("Checking all downloaded entries: are they already stored locally?", shouldLogALot);
+			Set<Entry<String, DiscussionEntry>> set = serverDiscussionEntryMap.entrySet();
+			Iterator<Entry<String, DiscussionEntry>> serverDiscussionEntryIterator = set.iterator();
+			while (serverDiscussionEntryIterator.hasNext()) {
+				Map.Entry<String, DiscussionEntry> currentMapEntry = (Map.Entry<String, DiscussionEntry>)serverDiscussionEntryIterator.next();
+				DiscussionEntry currentEntry = currentMapEntry.getValue();
 
-			Iterator<DiscussionEntry> serverDiscussionEntryListIterator = serverDiscussionEntryList.iterator();
-			while (serverDiscussionEntryListIterator.hasNext()) {
-				DiscussionEntry currentEntry = serverDiscussionEntryListIterator.next();
 				String unid = currentEntry.getUnid();
 				// Check if the entry is already in the database
 				ApplicationLog.d("Lookup for unid: " + unid, shouldLogALot);
@@ -321,32 +328,40 @@ public class DiscussionReplicator {
 						DatabaseManager.getInstance().updateDiscussionEntry(dbEntry);
 					}
 				}
-				/**
-				 * Done checking if new or modified entries were downloaded
-				 */		
 			}
 
 			/**
 			 * Checking all locally stored entries - are they in the download
 			 * if not - delete the local entry
 			 */
-			//			ArrayList<DiscussionEntry> localDiscussionEntryList = new ArrayList<DiscussionEntry>();
-			//			localDiscussionEntryList = (ArrayList<DiscussionEntry>) discussionDatabase.getDiscussionEntries();
-						ApplicationLog.d("Checking all database entries: should they be deleted? - not yet implemented", shouldLogALot);
+			ArrayList<DiscussionEntry> localDiscussionEntryList = new ArrayList<DiscussionEntry>();
+			localDiscussionEntryList = (ArrayList<DiscussionEntry>) discussionDatabase.getDiscussionEntries();
+			ApplicationLog.d("Checking all database entries: should they be deleted? - not yet implemented", shouldLogALot);
+			//Example on using Map http://www.java-tips.org/java-se-tips/java.util/how-to-use-of-hashmap.html
 			//
-			//			Iterator<DiscussionEntry> localDiscussionEntryListIterator = localDiscussionEntryList.iterator();
-			//			while (localDiscussionEntryListIterator.hasNext()) {
-			//				DiscussionEntry currentEntry = localDiscussionEntryListIterator.next();
-			//				String unid = currentEntry.getUnid();
-			//				// Check if the was downloaded 
-			//				ApplicationLog.d("Lookup for unid: " + unid, shouldLogALot);
-			//				DiscussionEntry serverEntry = serverDiscussionEntryList.
-			//						
-			//						UPS - serverlisten bør nok være et hashmap så jeg kan slå op med unid
-			//				
+			Iterator<DiscussionEntry> localDiscussionEntryListIterator = localDiscussionEntryList.iterator();
+			while (localDiscussionEntryListIterator.hasNext()) {
+				DiscussionEntry currentEntry = localDiscussionEntryListIterator.next();
+				String unid = currentEntry.getUnid();
+				// Check if the was downloaded 
+				ApplicationLog.d("Lookup for unid: " + unid, shouldLogALot);
+				DiscussionEntry serverEntry = serverDiscussionEntryMap.get(unid);
+				if (serverEntry != null) {
+					ApplicationLog.d("Found the entry " + currentEntry.getSubject() + " in the downloaded list", shouldLogALot);
+				} else {
+					ApplicationLog.d("Did not find the entry " + currentEntry.getSubject() + " in the downloaded list. Deleting in local DB", shouldLogALot);
+					DatabaseManager.getInstance().deleteDiscussionEntry(currentEntry);
+				}
+
+			}
 		}
+		/**
+		 * Done checking if new or modified entries were downloaded
+		 */		
 
 	}
+
+	//	}
 
 
 
@@ -378,18 +393,8 @@ public class DiscussionReplicator {
 			// String password = discussionDatabase.getPassword();
 			// String userName = discussionDatabase.getUserName();
 			String urlForDocuments = discussionEntry.getHref();
-			// String httpType = "";
-			// if (discussionDatabase.isUseSSL()) {
-			// httpType = "https";
-			// } else {
-			// httpType = "http";
-			// }
-			// String urlForDocuments = httpType + "://" + hostName + ":"
-			// + httpPort + dbPath + "/api/data/documents/";
-			//			Log.i(getClass().getSimpleName(), "Accesing " + urlForDocuments);
-			ApplicationLog.i("Accesing " + urlForDocuments);
 
-			//			Log.d(getClass().getSimpleName(), "Starting");
+			ApplicationLog.i("Accesing " + urlForDocuments);
 
 			ApplicationLog.d("Starting", shouldLogALot);
 
