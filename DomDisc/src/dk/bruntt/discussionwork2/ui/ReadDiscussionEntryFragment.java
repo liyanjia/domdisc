@@ -94,9 +94,10 @@ public class ReadDiscussionEntryFragment extends SherlockFragment {
 		
 		if (responseEntries == null || responseEntries.size() == 0	) {
 			ApplicationLog.d(getClass().getSimpleName() + " No responses. Will not display any", shouldCommitToLog);
-			adapter.clear();
-			adapter.notifyDataSetInvalidated();
-			
+			if (adapter != null) {
+				adapter.clear();
+				adapter.notifyDataSetInvalidated();	
+			}
 		} else {
 			ApplicationLog.d(getClass().getSimpleName() + " number of responses: " + responseEntries.size(), shouldCommitToLog);
 			
