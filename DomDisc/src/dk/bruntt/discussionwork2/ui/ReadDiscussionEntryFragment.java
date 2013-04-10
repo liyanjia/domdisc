@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,6 +120,15 @@ public class ReadDiscussionEntryFragment extends SherlockFragment {
 //						intent.putExtra(Constants.keyDiscussionEntryId,
 //								item.getUnid());
 //						startActivity(intent);
+						
+//						ReadDiscussionEntryFragment newFragment = new ReadDiscussionEntryFragment(); 
+//						FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+//				        ft.replace(R.id.responsesview, newFragment);
+//				        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//				        ft.addToBackStack(null);
+//				        ft.commit();
+						
+						
 					}
 				});
 				

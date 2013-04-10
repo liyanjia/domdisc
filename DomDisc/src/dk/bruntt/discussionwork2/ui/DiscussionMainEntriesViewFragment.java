@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +22,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.ApplicationLog;
 import dk.bruntt.discussionwork2.R;
 
 public class DiscussionMainEntriesViewFragment extends SherlockFragment {
@@ -27,11 +31,15 @@ public class DiscussionMainEntriesViewFragment extends SherlockFragment {
 	private OnItemSelectedListener listener;
 	ListView listView;
 	private DiscussionDatabase currentDiscussionDatabase = null;
+	private boolean shouldCommitToLog = false;
+
+
 
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		DatabaseManager.init(getActivity());
+		shouldCommitToLog = getLogALot(getActivity());
 		View view = inflater.inflate(R.layout.discussion_entry_list, container, false);
 		listView = (ListView) view.findViewById(R.id.list_view);
 		return view;
@@ -60,7 +68,10 @@ public class DiscussionMainEntriesViewFragment extends SherlockFragment {
 
 	private void populateListView() {
 		if (null != currentDiscussionDatabase) {
-			final List<DiscussionEntry> discussionEntries = currentDiscussionDatabase.getDiscussionEntries();
+//			final List<DiscussionEntry> discussionEntries = currentDiscussionDatabase.getDiscussionEntries();
+			ApplicationLog.d(getClass().getSimpleName() + "populateListView", shouldCommitToLog);
+			
+			final List<DiscussionEntry> discussionEntries = currentDiscussionDatabase.getMainEntries();
 			List<String> titles = new ArrayList<String>();
 			for (DiscussionEntry discussionEntry : discussionEntries) {
 				titles.add(discussionEntry.getSubject());
@@ -85,5 +96,10 @@ public class DiscussionMainEntriesViewFragment extends SherlockFragment {
 		public void onViewItemSelected(String unid);
 	}
 
+	private static boolean getLogALot(Context ctxt) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(ctxt);
+		return prefs.getBoolean("checkbox_preference_logalot", false);
+	}
 
 }
