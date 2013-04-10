@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,7 @@ import com.actionbarsherlock.view.MenuItem;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.R;
 
 //import android.widget.Button;
 
@@ -48,8 +49,7 @@ public class DiscussionEntriesViewActivity extends SherlockActivity implements
 		DatabaseManager.init(this);
 		// PollReceiver.scheduleAlarms(this);
 
-		ViewGroup contentView = (ViewGroup) getLayoutInflater().inflate(
-				R.layout.discussion_entry_list, null);
+		ViewGroup contentView = (ViewGroup) getLayoutInflater().inflate(R.layout.discussion_entry_list, null);
 		listView = (ListView) contentView.findViewById(R.id.list_view);
 
 		setContentView(contentView);

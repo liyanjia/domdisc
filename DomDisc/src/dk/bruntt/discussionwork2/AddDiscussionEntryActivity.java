@@ -1,8 +1,9 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

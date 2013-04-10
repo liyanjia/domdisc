@@ -7,8 +7,6 @@ public class DiscussionEntry {
 	/*
 	 * Felter der er nødvendige af hensyn til ORM
 	 */
-//	@DatabaseField(generatedId=true)
-//	private int id;
 
 	@DatabaseField(foreign=true,foreignAutoRefresh=true)
 	private DiscussionDatabase discussionDatabase;
@@ -25,6 +23,12 @@ public class DiscussionEntry {
 	private String unid; //BFD0FF2E75F184C3C1257A3E003BC74D"
 	@DatabaseField
 	private String noteid; // 936
+	
+	
+	public static final String PARENTID_FIELD_NAME = "parentid";  //accessible from outside to enable querying using the column name
+	@DatabaseField (columnName = PARENTID_FIELD_NAME) 
+	private String parentid; //50497357D971A985C1257B440026BE53
+	
 	@DatabaseField
 	private String created; //2012-07-17T10:52:56Z"
 	@DatabaseField
@@ -129,6 +133,12 @@ public class DiscussionEntry {
 	}
 	public void setNoteid(String noteid) {
 		this.noteid = noteid;
+	}
+	public String getParentid() {
+		return parentid;
+	}
+	public void setParentid(String parentid) {
+		this.parentid = parentid;
 	}
 	public String getCreated() {
 		return created;

@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 public class Constants {
 	public static final String keyDiscussionDatabaseId = "discussionDatabaseId";

@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -552,6 +552,7 @@ public class DiscussionReplicator {
 				"@noteid"));
 		discussionEntry.setAuthors(getDominoValueFromJson(jsonDocument,
 				"@authors"));
+		discussionEntry.setParentid(getDominoValueFromJson(jsonDocument, "@parentid"));
 
 		return discussionEntry;
 	}

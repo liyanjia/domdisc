@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,6 +23,7 @@ import com.actionbarsherlock.view.MenuItem;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.R;
 
 
 public class ReadDiscussionEntryActivity extends SherlockActivity {

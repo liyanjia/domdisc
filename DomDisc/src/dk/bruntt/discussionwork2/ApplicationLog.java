@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import java.util.Date;
 
@@ -42,11 +42,11 @@ public class ApplicationLog {
 	/**
 	 * Log debug. Only saves to Log database if shouldCommit is true
 	 * @param logText
-	 * @param shouldCommit
+	 * @param shouldCommitToLog
 	 */
-	public final static void d(String logText, boolean shouldCommit) {
+	public final static void d(String logText, boolean shouldCommitToLog) {
 		String level = "d";
-		if (shouldCommit) {
+		if (shouldCommitToLog) {
 			add(logText, level);	
 		}
 		Log.d(TAG, logText);

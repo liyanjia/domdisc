@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 /*
  * Copyright (C) 2011 Jake Wharton
  *
@@ -18,6 +18,8 @@ package dk.bruntt.dominodiscussionwork2;
 import android.os.Bundle;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
+
+import dk.bruntt.discussionwork2.R;
 
 public class PreferenceActivity extends SherlockPreferenceActivity {
     @Override

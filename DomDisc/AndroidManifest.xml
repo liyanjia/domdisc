@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dk.bruntt.dominodiscussionwork2"
+    package="dk.bruntt.discussionwork2"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -16,48 +16,55 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock.Light" >
         <activity
-            android:name=".DiscussionEntriesViewActivity"
+            android:name="dk.bruntt.discussionwork2.DiscussionEntriesViewActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
-            android:name=".DatabaseConfigurationsActivity"
+            android:name="dk.bruntt.discussionwork2.DatabaseConfigurationsActivity"
             android:label="@string/title_activity_main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DiscussionEntriesViewActivity" />
         </activity>
         <activity
-            android:name=".AddDiscussionDatabaseActivity"
+            android:name="dk.bruntt.discussionwork2.AddDiscussionDatabaseActivity"
             android:label="Add discussion database" />
         <activity
-            android:name=".AddDiscussionEntryActivity"
+            android:name="dk.bruntt.discussionwork2.AddDiscussionEntryActivity"
             android:label="Add discussion entry" />
         <activity
-            android:name=".ReadDiscussionEntryActivity"
+            android:name="dk.bruntt.discussionwork2.ReadDiscussionEntryActivity"
             android:label="Read discussion entry" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DiscussionEntriesViewActivity" />
-            </activity>
+        </activity>
         <activity
-            android:name=".LogListActivity"
-            android:label="Log Entries">
-                        <meta-data
+            android:name="dk.bruntt.discussionwork2.LogListActivity"
+            android:label="Log Entries" >
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DiscussionEntriesViewActivity" />
-            </activity>
-            
+        </activity>
         <activity
-            android:name=".PreferenceActivity"
-            android:label="Preferences">
-                        <meta-data
+            android:name="dk.bruntt.discussionwork2.PreferenceActivity"
+            android:label="Preferences" >
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DatabaseConfigurationsActivity" />
-            </activity>
+        </activity>
+        <activity
+            android:name="dk.bruntt.discussionwork2.ui.ReadDiscussionEntry2Activity"
+            android:label="Read entry" >
+        </activity>
+        <activity
+            android:name="dk.bruntt.discussionwork2.ui.StartActivity"
+            android:label="Start activity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <receiver android:name="PollReceiver" >
             <intent-filter>

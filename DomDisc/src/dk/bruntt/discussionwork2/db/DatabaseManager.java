@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.table.TableUtils;
 
@@ -95,18 +97,28 @@ public class DatabaseManager {
 		return discussionEntry;
 	}
 	
-	public DiscussionEntry getDiscussionEntryWithUnid(String unid) {
-		//skal laves færdig
-		DiscussionEntry discussionEntry = null;
-//		try {
-////			discussionEntry = getHelper().getDiscussionEntryDao().queryForFieldValues(arg0);
-//			getHelper().getDiscussionEntryDao().queryfor
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-		return discussionEntry;
+	
+	/**
+	 * @param discussionEntry
+	 * @return List of responses 
+	 */
+	public List<DiscussionEntry> getResponseDicussionEntries(DiscussionEntry discussionEntry) {
+		
+		List<DiscussionEntry> responseEntries = null;
+		
+		try {
+			Dao<DiscussionEntry, String> discussionEntryDao = getHelper().getDiscussionEntryDao();
+			QueryBuilder<DiscussionEntry, String> queryBuilder = discussionEntryDao.queryBuilder();
+			queryBuilder.where().eq(DiscussionEntry.PARENTID_FIELD_NAME, discussionEntry.getUnid());
+			PreparedQuery<DiscussionEntry> preparedQuery = queryBuilder.prepare();
+			responseEntries = discussionEntryDao.query(preparedQuery);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return responseEntries;
 	}
-
+	
 	public DiscussionEntry newDiscussionEntry() {
 		DiscussionEntry discussionEntry = new DiscussionEntry();
 		try {

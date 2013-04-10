@@ -1,4 +1,4 @@
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,7 @@ import com.actionbarsherlock.view.MenuItem;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.AppLog;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
+import dk.bruntt.discussionwork2.R;
 
 
 public class LogListActivity extends SherlockActivity {
@@ -53,7 +54,8 @@ public class LogListActivity extends SherlockActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	   switch (item.getItemId()) {
 	      case android.R.id.home:
-	         NavUtils.navigateUpTo(this, new Intent(this, DiscussionEntriesViewActivity.class));
+//	         NavUtils.navigateUpTo(this, new Intent(this, DiscussionEntriesViewActivity.class));
+	    	  NavUtils.navigateUpTo(this, new Intent(this, dk.bruntt.discussionwork2.ui.StartActivity.class));
 	         return true;
 	      case R.id.menu_empty_log:
 	    	  //Empty

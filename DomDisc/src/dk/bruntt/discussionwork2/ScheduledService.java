@@ -12,7 +12,7 @@
     http://commonsware.com/Android
  */
 
-package dk.bruntt.dominodiscussionwork2;
+package dk.bruntt.discussionwork2;
 
 import java.util.GregorianCalendar;
 import java.util.List;
