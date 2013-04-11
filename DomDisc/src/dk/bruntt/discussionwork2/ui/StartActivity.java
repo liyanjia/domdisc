@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,10 +15,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -32,10 +28,10 @@ import dk.bruntt.discussionwork2.Constants;
 import dk.bruntt.discussionwork2.DatabaseConfigurationsActivity;
 import dk.bruntt.discussionwork2.LogListActivity;
 import dk.bruntt.discussionwork2.PollReceiver;
+import dk.bruntt.discussionwork2.R;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
-import dk.bruntt.discussionwork2.R;
 
 public class StartActivity extends SherlockFragmentActivity implements ActionBar.OnNavigationListener, DiscussionMainEntriesViewFragment.OnItemSelectedListener {
 	DiscussionDatabase discussionDatabase;
@@ -43,9 +39,6 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 	ArrayList<String> spinnerSelectionList = null;
 
 	private boolean shouldCommitToLog = false;
-
-
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -303,7 +296,7 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 
 
 	/**
-	 * When an entry in the Main Entries View has been selected this method gets called with the unid of the selected item
+	 * When an entry in the Main Entries View (Fragment) has been selected this method gets called with the unid of the selected item
 	 */
 	@Override
 	public void onViewItemSelected(String unid) {
@@ -326,19 +319,22 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		          ReadDiscussionEntry2Activity.class);
 		      intent.putExtra(ReadDiscussionEntry2Activity.EXTRA_URL, unid);
 		      startActivity(intent);
-
 		    }	
 		}
-		
-		
 		
 	}
 
 
+	/* 
+	 * This reacts when something is selected from the spinner
+	 */
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		// TODO Auto-generated method stub
-		return false;
+		DiscussionDatabase selectedDiscussionDatabase = allDiscussionDatabases.get(itemPosition);
+		discussionDatabase = selectedDiscussionDatabase;
+		setupListView(discussionDatabase);
+		setLastOpenDiscussionDatabase(discussionDatabase.getId());
+		return true;
 	}
 
 	

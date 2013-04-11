@@ -67,18 +67,9 @@ public class DiscussionReplicator {
 		ApplicationLog.i("Replicate " + discussionDatabase.getName());
 
 		if (UserSessionTools.haveInternet(context) == false) {
-			//			Log.i(getClass().getSimpleName(),
-			//					"Internet connection not available - Replication not possible");
-			ApplicationLog
-			.i("Internet connection not available - Replication not possible");
+			ApplicationLog.i("Internet connection not available - Replication not possible");
 		} else {
-			//			Log.d(getClass().getSimpleName(),
-			//					"Internet connection is available");
-			//			Log.d(getClass().getSimpleName(), "Will replicate");
-
-			ApplicationLog.d(
-					"Internet connection is available- Will replicate",
-					shouldLogALot);
+			ApplicationLog.d("Internet connection is available- Will replicate", shouldLogALot);
 
 			String hostName = discussionDatabase.getHostName();
 			String dbPath = discussionDatabase.getDbPath();
@@ -557,125 +548,107 @@ public class DiscussionReplicator {
 		return discussionEntry;
 	}
 
-	private String getDominoValueFromJson(JSONObject jsonDocument,
-			String fieldName) {
+	private String getDominoValueFromJson(JSONObject jsonDocument,	String fieldName) {
 		String returnValue = "";
 
 		if (fieldName.contains("Body")) {
-			try {
-				JSONObject bodyObjectArray = jsonDocument
-						.getJSONObject(fieldName);
-				JSONArray bodyArray = bodyObjectArray.getJSONArray("content");
+			// If the Body field is not just plain text we will go for the more complicated extraction
+			returnValue = getBodyFieldValue(jsonDocument, fieldName, returnValue);
 
-				for (int i = 0; i < bodyArray.length(); i++) {
-					JSONObject bodyItem = bodyArray.getJSONObject(i);
-					if (bodyItem.has("contentType")) {
-						String thisContentType = bodyItem
-								.getString("contentType");
-						if (thisContentType.contains("text/html")) {
-							//							Log.d(getClass().getSimpleName(),
-							//									"Found body item with html - adding");
-
-							ApplicationLog.d(
-									"Found body item with html - adding",
-									shouldLogALot);
-
-							String bodyHtml = bodyItem.getString("data");
-
-							// Finding the charset - START
-							int charSetPos = thisContentType
-									.indexOf("charset="); // Returns the
-							// position of the c
-							// in the string
-							// "charset=" 8
-							// characters long
-
-							int contentTypeLength = thisContentType.length();
-
-							String charsetValue = thisContentType.substring(
-									charSetPos + 8, contentTypeLength);
-
-							ApplicationLog.d("charsetValue: " + charsetValue, shouldLogALot);
-							//							Log.d(getClass().getSimpleName(), "charsetValue: " + charsetValue);
-							// Finding the charset - END
-
-							// Checking for quoted-printable content - START
-							//contentTransferEncoding
-							String bodyHtmlDecoded = ""; 
-							if (bodyItem.has("contentTransferEncoding")) {
-								String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
-
-								ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldLogALot);
-								//								Log.d(getClass().getSimpleName(), "contentTransferEncoding is specified as "  + contentTransferEncoding + " will do decoding");
-
-
-								QuotedPrintableCodec dims = new QuotedPrintableCodec(); 
-
-								//char 33 til 126
-
-								// Stripping newline characters as they will make QuotedPrintableCodec throw an Exception
-								String newstr = bodyHtml.replaceAll("=\r\n", "");
-
-								//								bodyHtml = bodyHtml.substring(0, 71);
-								bodyHtml = newstr;
-								ApplicationLog.d("decoding: " + bodyHtml, shouldLogALot);
-								//								Log.d(getClass().getSimpleName(), "decoding: " + bodyHtml);
-
-								try {
-									bodyHtmlDecoded = dims.decode(bodyHtml, charsetValue);
-								} catch (DecoderException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (UnsupportedEncodingException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
-								ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldLogALot);
-								//								Log.d(getClass().getSimpleName(), "decoded: " + bodyHtmlDecoded);
-
-
-							}
-
-							// Checking for quoted-printable content - END
-
-							if (bodyHtmlDecoded.equals("")) {
-								returnValue = bodyHtml;
-							} else {
-								returnValue = bodyHtmlDecoded;
-							}
-						}
-					}
-
-				}
-			}
-
-			catch (JSONException e) {
-				//				Log.d(getClass().getSimpleName(), "Unable to find field "
-				//						+ fieldName);
-
-				ApplicationLog.d("Unable to find field " + fieldName,
-						shouldLogALot);
-
-				returnValue = "";
-			}
 
 		} else { // All other fields than Body
 			try {
 				returnValue = jsonDocument.getString(fieldName);
 			} catch (JSONException e) {
-				// e.printStackTrace();
-				//				Log.w(getClass().getSimpleName(), "Unable to find field "
-				//						+ fieldName);
-
-				ApplicationLog.d("Unable to find field " + fieldName,
-						shouldLogALot);
-
+				ApplicationLog.d("Unable to find field " + fieldName, shouldLogALot);
 				returnValue = "";
 			}
 
 		}
 
+		return returnValue;
+	}
+
+	private String getBodyFieldValue(JSONObject jsonDocument, String fieldName,	String returnValue) {
+		try {
+			JSONObject bodyObjectArray = jsonDocument.getJSONObject(fieldName);
+			JSONArray bodyArray = bodyObjectArray.getJSONArray("content");
+			for (int i = 0; i < bodyArray.length(); i++) {
+				JSONObject bodyItem = bodyArray.getJSONObject(i);
+				if (bodyItem.has("contentType")) {
+					String thisContentType = bodyItem
+							.getString("contentType");
+					if (thisContentType.contains("text/html")) {
+
+						ApplicationLog.d("Found body item with html - adding", shouldLogALot);
+						String bodyHtml = bodyItem.getString("data");
+
+						// Finding the charset - START
+						int charSetPos = thisContentType.indexOf("charset="); // Returns the
+						// position of the c in the string "charset=" 8 characters long
+
+						int contentTypeLength = thisContentType.length();
+
+						String charsetValue = thisContentType.substring(
+								charSetPos + 8, contentTypeLength);
+
+						ApplicationLog.d("charsetValue: " + charsetValue, shouldLogALot);
+						// Finding the charset - END
+
+						// Checking for quoted-printable content - START
+						//contentTransferEncoding
+						String bodyHtmlDecoded = ""; 
+						if (bodyItem.has("contentTransferEncoding")) {
+							String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
+
+							ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldLogALot);
+							//								Log.d(getClass().getSimpleName(), "contentTransferEncoding is specified as "  + contentTransferEncoding + " will do decoding");
+
+							QuotedPrintableCodec dims = new QuotedPrintableCodec(); 
+
+							// Stripping newline characters as they will make QuotedPrintableCodec throw an Exception
+							String newstr = bodyHtml.replaceAll("=\r\n", "");
+
+							bodyHtml = newstr;
+							ApplicationLog.d("decoding: " + bodyHtml, shouldLogALot);
+
+							try {
+								bodyHtmlDecoded = dims.decode(bodyHtml, charsetValue);
+							} catch (DecoderException e) {
+								//								e.printStackTrace();
+								ApplicationLog.d("Exception: " + e.getMessage(), shouldLogALot);
+							} catch (UnsupportedEncodingException e) {
+								//								e.printStackTrace();
+								ApplicationLog.d("Exception: " + e.getMessage(), shouldLogALot);
+							}
+
+							ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldLogALot);
+						}
+
+						// Checking for quoted-printable content - END
+
+						if (bodyHtmlDecoded.equals("")) {
+							returnValue = bodyHtml;
+						} else {
+							returnValue = bodyHtmlDecoded;
+						}
+					}
+				}
+			}
+		}
+
+		catch (JSONException e) {
+			// Most likely we're here because the Body item is not an array but a simple field instead
+			ApplicationLog.d(fieldName + " is not an array - looking for simple field ", shouldLogALot);
+			try {
+				returnValue = jsonDocument.getString(fieldName);
+			} catch (JSONException e1) {
+				// If we're here we give up trying
+				ApplicationLog.d("Exception: " + e.getMessage(), shouldLogALot);
+				ApplicationLog.d("Unable to find field " + fieldName,	shouldLogALot);
+				returnValue = "";
+			}
+		}
 		return returnValue;
 	}
 
@@ -731,14 +704,6 @@ public class DiscussionReplicator {
 
 				//Working out if we already have a Cookie or if we have a Set-cookie to work with - START
 				List<String> setCookieList = responseHeaders.get("Set-Cookie");
-				//				List<String> cookieList = responseHeaders.get("Cookie");
-				//
-				//				List<String> listToWorkOn = null;
-				//				if (null != cookieList) {
-				//					listToWorkOn = setCookieList;
-				//				} else {
-				//					listToWorkOn = cookieList;
-				//				}
 				//Working out if we already have a Cookie or if we have a Set-cookie to work with - END				
 				if (null != setCookieList) {
 					String cookie = setCookieList.get(0);  //Assuming the cookie we are looking for will always be first
@@ -765,26 +730,6 @@ public class DiscussionReplicator {
 						ApplicationLog.d("Did not get the Authetication token value", shouldLogALot);
 					}
 
-					//					REM 1/4-2013 - hopefully handlede with the above, more simple code
-					//					if (cookie.startsWith("LtpaToken=")) {
-					//						ApplicationLog.d("Cookie is an LtpaToken", shouldLogALot);
-					//						String actualToken = (String) cookie.subSequence(0,indexOfEndPos);
-					//						if (actualToken != null) {
-					//							ApplicationLog.d("Token value= " + actualToken, shouldLogALot);
-					//							authenticationCookie = actualToken;
-					//						} else {
-					//							ApplicationLog.d("Did not get the LtpaToken value", shouldLogALot);
-					//						}
-					//					} else if (cookie.startsWith("DomAuthSessID=")) {
-					//						ApplicationLog.d("Cookie is a DomAuthSessID", shouldLogALot);
-					//						String actualToken = (String) cookie.subSequence(0, indexOfEndPos);
-					//						if (actualToken != null) {
-					//							ApplicationLog.d("Token value= " + actualToken, shouldLogALot);
-					//							authenticationCookie = actualToken;
-					//						} else {
-					//							ApplicationLog.d("Did not get the DomAuthSessID value", shouldLogALot);
-					//						}
-					//					}
 				} else {
 					ApplicationLog.d("No Authentication Cookie available", shouldLogALot);
 				}
@@ -795,7 +740,6 @@ public class DiscussionReplicator {
 			if (errorMessage == null) {
 				errorMessage = "Error message not available";
 			}
-			//			Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
 			ApplicationLog.e("RestClientException: " + errorMessage);
 			e.printStackTrace();
 		} catch (Exception e) {

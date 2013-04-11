@@ -264,6 +264,11 @@ public class DiscussionEntriesViewActivity extends SherlockActivity implements
 
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see com.actionbarsherlock.app.ActionBar.OnNavigationListener#onNavigationItemSelected(int, long)
+	 * This reacts when something is selected from the spinner
+	 */
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		// ApplicationLog.d("onNavigationItemSelected: itemPosition/itemId" +
