@@ -31,11 +31,13 @@ import dk.bruntt.discussionwork2.Constants;
 import dk.bruntt.discussionwork2.ReadDiscussionEntryActivity;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.ui.DiscussionMainEntriesViewFragment.OnItemSelectedListener;
 import dk.bruntt.discussionwork2.R;
 
 public class ReadDiscussionEntryFragment extends SherlockFragment implements OnClickListener {
 
 	private DiscussionEntry currentDiscussionEntry = null;
+	private String currentUnid = "";
 	private boolean shouldCommitToLog = false;
 	Activity myActivity = null;
 
@@ -50,15 +52,46 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 	
 	//Default is to display the body and not the responses
 	private boolean showBody = true;
+	
+	private OnResponseItemSelectedListener listener;
 
 
+    /**
+     * Create a new instance of ReadDiscussionEntryFragment that will be initialized
+     * with the given argument that points at a document to display.
+     */
+    static ReadDiscussionEntryFragment newInstance(CharSequence unid) {
+    	ReadDiscussionEntryFragment f = new ReadDiscussionEntryFragment();
+        Bundle b = new Bundle();
+        b.putCharSequence("unid", unid);
+        f.setArguments(b);
+        return f;
+    }
+    
+    /**
+     * During creation, if arguments have been supplied to the fragment
+     * then parse those out.
+     */
+    @Override public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        myActivity = getActivity();
+		shouldCommitToLog = getLogALot(myActivity);
+        DatabaseManager.init(myActivity);
 
+        Bundle args = getArguments();
+        if (args != null) {
+            CharSequence unid = args.getCharSequence("unid");
+            if (unid != null) {
+            	ApplicationLog.d(getClass().getSimpleName() + " got a unid: " + unid, shouldCommitToLog);
+                currentUnid = unid.toString();
+            }
+        }
+    }
 
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		myActivity = getActivity();
-		shouldCommitToLog = getLogALot(myActivity);
+		
 		ApplicationLog.d(getClass().getSimpleName() +  " onCreateView", shouldCommitToLog);
 		DatabaseManager.init(myActivity);
 		View view = inflater.inflate(R.layout.read_discussion_entry_with_children, container, false);
@@ -71,6 +104,15 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 		webView = (WebView) view.findViewById(R.id.bodyhtml);
 //		webView.setVisibility(View.GONE);
 		responseView = (ListView) view.findViewById(R.id.responsesview);
+		
+		//If we were fed a unid from a Bundle, we will proceed and load the Document and show it
+		if (currentUnid != null) {
+			DatabaseManager.init(myActivity);
+			currentDiscussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(currentUnid);
+			if (currentDiscussionEntry != null) {
+				setDiscussionEntry(currentDiscussionEntry);
+			}
+		}
 		
 		return view;
 	}
@@ -111,7 +153,7 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 	 * Will display the discussionEntry and its children
 	 * @param discussionEntry
 	 */
-	public void setDiscussionEntry(DiscussionEntry discussionEntry) {
+	private void setDiscussionEntry(DiscussionEntry discussionEntry) {
 		
 		if (discussionEntry == null)  {
 			ApplicationLog.w(getClass().getSimpleName() +  " setDiscussionEntry: No discussionEntry to show");
@@ -153,28 +195,41 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 				}
 				adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, titles);
 				responseView.setAdapter(adapter);
-				final Activity activity = getActivity();
+				
+				/**
+				 * When clicked activate the OnViewItemSelected method with the unid. The enclosing Activity will have to handle
+				 * what happens next
+				 */
 				responseView.setOnItemClickListener(new OnItemClickListener() {
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
+					public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 						DiscussionEntry item = responseEntries.get(position);
-						setDiscussionEntry(item);
-//						Intent intent = new Intent(activity,
-//								ReadDiscussionEntryActivity.class);
-//						intent.putExtra(Constants.keyDiscussionEntryId,
-//								item.getUnid());
-//						startActivity(intent);
-						
-//						ReadDiscussionEntryFragment newFragment = new ReadDiscussionEntryFragment(); 
-//						FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-//				        ft.replace(R.id.responsesview, newFragment);
-//				        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-//				        ft.addToBackStack(null);
-//				        ft.commit();
-						
-						
+						listener.onResponseViewItemSelected(item.getUnid());
 					}
 				});
+				
+				
+//				final Activity activity = getActivity();
+//				responseView.setOnItemClickListener(new OnItemClickListener() {
+//					public void onItemClick(AdapterView<?> parent, View view,
+//							int position, long id) {
+//						DiscussionEntry item = responseEntries.get(position);
+//						setDiscussionEntry(item);
+////						Intent intent = new Intent(activity,
+////								ReadDiscussionEntryActivity.class);
+////						intent.putExtra(Constants.keyDiscussionEntryId,
+////								item.getUnid());
+////						startActivity(intent);
+//						
+////						ReadDiscussionEntryFragment newFragment = new ReadDiscussionEntryFragment(); 
+////						FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+////				        ft.replace(R.id.responsesview, newFragment);
+////				        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+////				        ft.addToBackStack(null);
+////				        ft.commit();
+//						
+//						
+//					}
+//				});
 				
 			}
 		}
@@ -209,5 +264,29 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 				.getDefaultSharedPreferences(ctxt);
 		return prefs.getBoolean("checkbox_preference_logalot", false);
 	}
+	
+	
+	/**
+	 * Forcing Activities that use this Class to implement this interface
+	 * @author Jens
+	 *
+	 */
+	public interface OnResponseItemSelectedListener {
+		public void onResponseViewItemSelected(String unid);
+	}
+	
+	/**
+	 * Hooks the listener to the enclosing Activity
+	 */	
+	 @Override
+	    public void onAttach(Activity activity) {
+	      super.onAttach(activity);
+	      if (activity instanceof OnResponseItemSelectedListener) {
+	        listener = (OnResponseItemSelectedListener) activity;
+	      } else {
+	        throw new ClassCastException(activity.toString()
+	            + " must implement ReadDiscussionEntryFragment.OnResponseItemSelectedListener");
+	      }
+	    }
 
 }

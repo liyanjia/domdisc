@@ -7,17 +7,17 @@
     <fragment
         android:id="@+id/discussionMainEntriesFragment"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_height="match_parent"
-        class="dk.bruntt.discussionwork2.ui.DiscussionMainEntriesViewFragment" ></fragment>
-
-    <fragment
-        android:id="@+id/discussionEntryFragment"
-        android:layout_width="0dp"
-        android:layout_weight="2"
-        android:layout_height="match_parent"
-        class="dk.bruntt.discussionwork2.ui.ReadDiscussionEntryFragment" >
-        <!-- Preview: layout=@layout/details -->
+        class="dk.bruntt.discussionwork2.ui.DiscussionMainEntriesViewFragment" >
     </fragment>
 
-</LinearLayout> 
+    <FrameLayout
+        android:id="@+id/discussionEntryFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2" 
+        >
+    </FrameLayout>
+
+</LinearLayout>
