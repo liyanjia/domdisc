@@ -53,24 +53,24 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		 */
 		ViewGroup contentView = (ViewGroup) getLayoutInflater().inflate(R.layout.start_activity, null);
 		setContentView(contentView);
-		
+
 		//We may have to load a fragment when the app is initially started. if we have a layout that includes the discussionEntryFragment
-        if (savedInstanceState == null) {
-        	ApplicationLog.d(getClass().getSimpleName() + " savedInstanceState is null", shouldCommitToLog);
-//        	ReadDiscussionEntryFragment fragment = (ReadDiscussionEntryFragment) getSupportFragmentManager().findFragmentById(R.id.discussionEntryFragment);
-        	FrameLayout containerForReadDiscussionEntryFragment = (FrameLayout) findViewById(R.id.discussionEntryFragment);
+		if (savedInstanceState == null) {
+			ApplicationLog.d(getClass().getSimpleName() + " savedInstanceState is null", shouldCommitToLog);
+			//        	ReadDiscussionEntryFragment fragment = (ReadDiscussionEntryFragment) getSupportFragmentManager().findFragmentById(R.id.discussionEntryFragment);
+			FrameLayout containerForReadDiscussionEntryFragment = (FrameLayout) findViewById(R.id.discussionEntryFragment);
 			// If the fragment is visible - Do first time initialization -- add initial fragment.
-		    if (containerForReadDiscussionEntryFragment != null ) {
-		    	ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
-	            Fragment newFragment = new ReadDiscussionEntryFragment();
-	            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-	            ft.add(R.id.discussionEntryFragment, newFragment).commit();
-		    }
-        }
-		
+			if (containerForReadDiscussionEntryFragment != null ) {
+				ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
+				Fragment newFragment = new ReadDiscussionEntryFragment();
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.add(R.id.discussionEntryFragment, newFragment).commit();
+			}
+		}
+
 		showSpinner();
 	}
-	
+
 
 	@Override
 	protected void onStart() {
@@ -78,64 +78,66 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		DatabaseManager.init(this);
 		handleUpgradeCheck();
 
-		// int discussionDatabaseId =
-		// getIntent().getExtras().getInt(Constants.keyDiscussionDatabaseId);
-
 		int discussionDatabaseId = getLastOpenDiscussionDatabase();
 		if (discussionDatabaseId < 0) {
-			
-				ApplicationLog.d("No database has been opened previously", shouldCommitToLog);
-			
-
+			ApplicationLog.d("No database has been opened previously", shouldCommitToLog);
 			discussionDatabase = DatabaseManager.getInstance()
 					.getDiscussionDatabaseWithId(discussionDatabaseId);
 			List<DiscussionDatabase> allDiscussionDatabases = DatabaseManager
 					.getInstance().getAllDiscussionDatabases();
 			if (allDiscussionDatabases.isEmpty()) {
-				
-					ApplicationLog
-							.d("There are no DiscussionDatabases available", shouldCommitToLog);
-				
+				ApplicationLog.d("There are no DiscussionDatabases available", shouldCommitToLog);
 				discussionDatabase = null;
 			} else {
-				
-					ApplicationLog.d("Getting the first DiscussionDatabase", shouldCommitToLog);
-				
+				ApplicationLog.d("Getting the first DiscussionDatabase", shouldCommitToLog);
 				discussionDatabase = allDiscussionDatabases.get(0);
 			}
 		} else {
-			discussionDatabase = DatabaseManager.getInstance()
-					.getDiscussionDatabaseWithId(discussionDatabaseId);
-			// ApplicationLog.d("Got the DiscussionDatabase "
-			// + discussionDatabase.getName());
+			discussionDatabase = DatabaseManager.getInstance().getDiscussionDatabaseWithId(discussionDatabaseId);
 		}
 
 		if (discussionDatabase != null) {
-			Log.i("DiscussionDatabase", "discussionDatabase="
-					+ discussionDatabase + " discussionDatabaseId="
-					+ discussionDatabaseId);
+			ApplicationLog.d("displaying discussionDatabase="	+ discussionDatabase.getName() + " discussionDatabaseId="+ discussionDatabaseId, shouldCommitToLog);
 			setupListView(discussionDatabase);//
 			setLastOpenDiscussionDatabase(discussionDatabase.getId());
-			// setTitle("Discussion database '" + discussionDatabase.getName()
-			// + "'");
 		} else {
-			
-				ApplicationLog.d("Displaying nothing", shouldCommitToLog);
-			
+			ApplicationLog.d("Displaying nothing", shouldCommitToLog);
 		}
+		
+		showInitialRightPane();
 
 		// Only do this if we have more than 1 database.
 		if ((discussionDatabase != null) && allDiscussionDatabases.size() > 1) {
 			int pos = spinnerSelectionList
 					.indexOf(discussionDatabase.getName());
 			if (pos > -1) {
-
 				getSupportActionBar().setSelectedNavigationItem(pos);
 			}
 		}
 
 	}
-	
+
+
+	private void showInitialRightPane() {
+//		FrameLayout containerForReadDiscussionEntryFragment = (FrameLayout) findViewById(R.id.discussionEntryFragment);
+//
+//		if (containerForReadDiscussionEntryFragment != null) {
+//			ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
+//
+//			// Instantiate a new fragment.
+//			ReadDiscussionEntryFragment newFragment = ReadDiscussionEntryFragment.newInstance(unid);
+//			// Add the fragment to the activity, pushing this transaction
+//			// on to the back stack.
+//			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//			ft.replace(R.id.discussionEntryFragment, newFragment);
+//			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//			ft.commit();
+//			ApplicationLog.d(getClass().getSimpleName() + "FragmentTransaction committed", shouldCommitToLog);
+//		} else {
+//			ApplicationLog.w(getClass().getSimpleName() + " Did not find the fragment container");
+//		}
+	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -176,7 +178,7 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 	}
 
 
-	
+
 
 	/** 
 	 * Give me a DiscussionDatabase to show. Feeds it to the fragment
@@ -318,42 +320,42 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 	 */
 	@Override
 	public void onViewItemSelected(String unid) {
-		
+
 		ApplicationLog.d("got a unid: " + unid, shouldCommitToLog);
-		
+
 		DiscussionEntry selectedEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(unid);
-		
+
 		if (selectedEntry == null) {
 			ApplicationLog.w("Unable to find the selected Discussion Entry - not showing anything new");
 		} else {
-//			ReadDiscussionEntryFragment fragment = (ReadDiscussionEntryFragment) getSupportFragmentManager().findFragmentById(R.id.discussionEntryFragment);
+			//			ReadDiscussionEntryFragment fragment = (ReadDiscussionEntryFragment) getSupportFragmentManager().findFragmentById(R.id.discussionEntryFragment);
 			FrameLayout containerForReadDiscussionEntryFragment = (FrameLayout) findViewById(R.id.discussionEntryFragment);
-			
+
 			// If the fragment is visible - feed it the DiscussionEntry. If not - launch a new Activity with the unid of the DiscussionEntry
-		    if (containerForReadDiscussionEntryFragment != null) {
-		    	ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
-//		      fragment.setDiscussionEntry(selectedEntry);
-		      
-		        // Instantiate a new fragment.
-		    	ReadDiscussionEntryFragment newFragment = ReadDiscussionEntryFragment.newInstance(unid);
-		        // Add the fragment to the activity, pushing this transaction
-		        // on to the back stack.
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		        ft.replace(R.id.discussionEntryFragment, newFragment);
-		        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-		        ft.addToBackStack(null);
-		        ft.commit();
-		        ApplicationLog.d(getClass().getSimpleName() + "FragmentTransaction committed", shouldCommitToLog);
-//		        newFragment.setDiscussionEntry(selectedEntry);
-		    } else {
-		    	ApplicationLog.d(getClass().getSimpleName() + " fragment is not layout. Launching new ReadDiscussionEntry2Activity", shouldCommitToLog);
-		      Intent intent = new Intent(getApplicationContext(),
-		          ReadDiscussionEntry2Activity.class);
-		      intent.putExtra(ReadDiscussionEntry2Activity.EXTRA_URL, unid);
-		      startActivity(intent);
-		    }	
+			if (containerForReadDiscussionEntryFragment != null) {
+				ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
+				//		      fragment.setDiscussionEntry(selectedEntry);
+
+				// Instantiate a new fragment.
+				ReadDiscussionEntryFragment newFragment = ReadDiscussionEntryFragment.newInstance(unid);
+				// Add the fragment to the activity, pushing this transaction
+				// on to the back stack.
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.replace(R.id.discussionEntryFragment, newFragment);
+				ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+				ft.addToBackStack(null);
+				ft.commit();
+				ApplicationLog.d(getClass().getSimpleName() + "FragmentTransaction committed", shouldCommitToLog);
+				//		        newFragment.setDiscussionEntry(selectedEntry);
+			} else {
+				ApplicationLog.d(getClass().getSimpleName() + " fragment is not layout. Launching new ReadDiscussionEntry2Activity", shouldCommitToLog);
+				Intent intent = new Intent(getApplicationContext(),
+						ReadDiscussionEntry2Activity.class);
+				intent.putExtra(ReadDiscussionEntry2Activity.EXTRA_URL, unid);
+				startActivity(intent);
+			}	
 		}
-		
+
 	}
 
 	/**
@@ -361,40 +363,40 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 	 */
 	@Override
 	public void onResponseViewItemSelected(String unid) {
-		
+
 		ApplicationLog.d(getClass().getSimpleName() + " got a unid: " + unid, shouldCommitToLog);
-		
+
 		DiscussionEntry selectedEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(unid);
-		
+
 		if (selectedEntry == null) {
 			ApplicationLog.w(getClass().getSimpleName() + " Unable to find the selected Discussion Entry - not showing anything new");
 		} else {
 			FrameLayout containerForReadDiscussionEntryFragment = (FrameLayout) findViewById(R.id.discussionEntryFragment);
-			
-			// If the fragment is visible - feed it the DiscussionEntry. If not - launch a new Activity with the unid of the DiscussionEntry
-		    if (containerForReadDiscussionEntryFragment != null) {
-		    	ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
 
-		    	// Instantiate a new fragment.
-		    	ReadDiscussionEntryFragment newFragment = ReadDiscussionEntryFragment.newInstance(unid);
-		        // Add the fragment to the activity, pushing this transaction
-		        // on to the back stack.
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		        ft.replace(R.id.discussionEntryFragment, newFragment);
-		        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-		        ft.addToBackStack(null);
-		        ft.commit();
-		        ApplicationLog.d(getClass().getSimpleName() + "FragmentTransaction committed", shouldCommitToLog);
-//		        newFragment.setDiscussionEntry(selectedEntry);
-		    } else {
-		    	ApplicationLog.d(getClass().getSimpleName() + " fragment is not layout. Launching new ReadDiscussionEntry2Activity", shouldCommitToLog);
-		      Intent intent = new Intent(getApplicationContext(),
-		          ReadDiscussionEntry2Activity.class);
-		      intent.putExtra(ReadDiscussionEntry2Activity.EXTRA_URL, unid);
-		      startActivity(intent);
-		    }	
+			// If the fragment is visible - feed it the DiscussionEntry. If not - launch a new Activity with the unid of the DiscussionEntry
+			if (containerForReadDiscussionEntryFragment != null) {
+				ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
+
+				// Instantiate a new fragment.
+				ReadDiscussionEntryFragment newFragment = ReadDiscussionEntryFragment.newInstance(unid);
+				// Add the fragment to the activity, pushing this transaction
+				// on to the back stack.
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.replace(R.id.discussionEntryFragment, newFragment);
+				ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+				ft.addToBackStack(null);
+				ft.commit();
+				ApplicationLog.d(getClass().getSimpleName() + "FragmentTransaction committed", shouldCommitToLog);
+				//		        newFragment.setDiscussionEntry(selectedEntry);
+			} else {
+				ApplicationLog.d(getClass().getSimpleName() + " fragment is not layout. Launching new ReadDiscussionEntry2Activity", shouldCommitToLog);
+				Intent intent = new Intent(getApplicationContext(),
+						ReadDiscussionEntry2Activity.class);
+				intent.putExtra(ReadDiscussionEntry2Activity.EXTRA_URL, unid);
+				startActivity(intent);
+			}	
 		}
-		
+
 	}
 
 
@@ -410,5 +412,5 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		return true;
 	}
 
-	
+
 }
