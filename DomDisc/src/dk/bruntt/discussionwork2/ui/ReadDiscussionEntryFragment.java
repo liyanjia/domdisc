@@ -13,10 +13,12 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -31,7 +33,7 @@ import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
 import dk.bruntt.discussionwork2.R;
 
-public class ReadDiscussionEntryFragment extends SherlockFragment {
+public class ReadDiscussionEntryFragment extends SherlockFragment implements OnClickListener {
 
 	private DiscussionEntry currentDiscussionEntry = null;
 	private boolean shouldCommitToLog = false;
@@ -42,8 +44,12 @@ public class ReadDiscussionEntryFragment extends SherlockFragment {
 	private TextView authorView;
 	private WebView webView;
 	private ListView responseView;
+	private Button toggleBodyResponsesVisible;
 	
 	ArrayAdapter<String> adapter = null;
+	
+	//Default is to display the body and not the responses
+	private boolean showBody = true;
 
 
 
@@ -59,10 +65,46 @@ public class ReadDiscussionEntryFragment extends SherlockFragment {
 		
 		subjectView = (TextView) view.findViewById(R.id.subject);
 		authorView = (TextView) view.findViewById(R.id.author);
+		toggleBodyResponsesVisible = (Button) view.findViewById(R.id.toggle_body_responses);
+		toggleBodyResponsesVisible.setOnClickListener(this);
+		
 		webView = (WebView) view.findViewById(R.id.bodyhtml);
+//		webView.setVisibility(View.GONE);
 		responseView = (ListView) view.findViewById(R.id.responsesview);
 		
 		return view;
+	}
+	
+	@Override
+	public void onClick(View v){
+		
+		//If this is the toggle button we will go on and toggle - checking because we might add other clickables
+		if (v.getId() == toggleBodyResponsesVisible.getId()) {
+			toggleShowBodyResponses();			
+		}
+		
+
+	}
+
+	private void toggleShowBodyResponses() {
+		if (showBody == true) {
+			showBody = false;
+		} else {
+			showBody = true;
+		}
+		enforceBodyResponsesVisibility();
+	}
+
+	private void enforceBodyResponsesVisibility() {
+		if (showBody == true) {
+			webView.setVisibility(View.VISIBLE);
+			responseView.setVisibility(View.GONE);
+			toggleBodyResponsesVisible.setText(R.string.toggle_body_responses_button_body_visible);
+		} else {
+			webView.setVisibility(View.GONE);
+			responseView.setVisibility(View.VISIBLE);
+			toggleBodyResponsesVisible.setText(R.string.toggle_body_responses_button_responses_visible); 
+		}
 	}
 
 	/**
@@ -79,6 +121,8 @@ public class ReadDiscussionEntryFragment extends SherlockFragment {
 			populateHeader();
 			populateBody();
 			populateFooter();	
+			showBody = true; //Default is to show the body text
+			enforceBodyResponsesVisibility();
 		}
 		
 		// Show UP ?

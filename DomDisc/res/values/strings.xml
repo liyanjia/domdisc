@@ -20,4 +20,6 @@
 	<string name="title_list_preference_logschedule">Replication schedule</string>
 	<string name="summary_list_preference_logschedule">How often to sync</string>
 	<string name="dialog_title_logschedule_preference">Select schedule</string>
+	<string name="toggle_body_responses_button_responses_visible">show text</string>
+	<string name="toggle_body_responses_button_body_visible">show responses</string>
 </resources>
