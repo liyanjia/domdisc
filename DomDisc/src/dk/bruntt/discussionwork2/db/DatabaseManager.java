@@ -8,6 +8,7 @@ import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
+import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
 
 import dk.bruntt.discussionwork2.model.AppLog;
@@ -122,7 +123,7 @@ public class DatabaseManager {
 	/**
 	 * @param discussionDatabase
 	 * @return List of DiscussionEntry containing entries that were created in the app
-	 * but have not yet been submitted to the database
+	 * but have not yet been submitted to the database. Entries with no noteid = locally created
 	 */
 	public List<DiscussionEntry> getDiscussionEntriesForSubmit(DiscussionDatabase discussionDatabase) {
 		List<DiscussionEntry> discussionEntries = null;
@@ -130,9 +131,12 @@ public class DatabaseManager {
 		try {
 			Dao<DiscussionEntry, String> discussionEntryDao = getHelper().getDiscussionEntryDao();
 			QueryBuilder<DiscussionEntry, String> queryBuilder = discussionEntryDao.queryBuilder();
-			queryBuilder.where().eq(DiscussionEntry.NOTEID_FIELD_NAME, ""); // <- noteid empty means that document was created locally in the app
-			queryBuilder.where().and();
-			queryBuilder.where().eq(DiscussionEntry.DISCUSSIONDB_FIELD_NAME, discussionDatabase);
+			Where<DiscussionEntry, String> where = queryBuilder.where();
+
+			where.eq(DiscussionEntry.NOTEID_FIELD_NAME, ""); // <- noteid empty means that document was created locally in the app
+			where.and();
+			where.eq(DiscussionEntry.DISCUSSIONDB_FIELD_NAME, discussionDatabase);
+			
 			PreparedQuery<DiscussionEntry> preparedQuery = queryBuilder.prepare();
 			discussionEntries = discussionEntryDao.query(preparedQuery);
 

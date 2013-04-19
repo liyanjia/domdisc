@@ -13,6 +13,12 @@
     <string name="menu_compose_document">Compose document</string>
     <string name="menu_save">Save</string>
     <string name="menu_discard">Discard</string>
+    
+    <!-- ReadDiscussionEntryFragment -->
+	<string name="toggle_body_responses_button_responses_visible">show text</string>
+	<string name="toggle_body_responses_button_body_visible">show responses</string>
+	
+	<!-- PreferenceActivity -->
     <string name="preference_category_logging">Logging</string>
     <string name="title_checkbox_preference_logalot">Log extra</string>
 	<string name="summary_checkbox_preference_logalot">For debugging</string>
@@ -20,6 +26,11 @@
 	<string name="title_list_preference_logschedule">Replication schedule</string>
 	<string name="summary_list_preference_logschedule">How often to sync</string>
 	<string name="dialog_title_logschedule_preference">Select schedule</string>
-	<string name="toggle_body_responses_button_responses_visible">show text</string>
-	<string name="toggle_body_responses_button_body_visible">show responses</string>
+	
+	<!-- AddDiscussionEntryActivity -->
+	<string name="subject">Subject:</string>
+	<string name="categories">Categories:</string>
+	<string name="body">Body:</string>
+	<string name="body_hint">Enter the main body text</string>
+	<string name="subject_hint">Short subject of your entry</string>
 </resources>

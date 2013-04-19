@@ -18,7 +18,7 @@ public class DiscussionEntry {
 	 */
 	@DatabaseField
 	private String href; //http:\/\/www.jens.bruntt.dk:80\/androiddev\/discussi.nsf\/api\/data\/documents\/unid\/BFD0FF2E75F184C3C1257A3E003BC74D"
-	@DatabaseField (id=true) // <- KEY for entries
+	@DatabaseField (id=true,canBeNull=false) // <- KEY for entries
 	private String unid; //BFD0FF2E75F184C3C1257A3E003BC74D"
 	
 	public static final String NOTEID_FIELD_NAME = "noteid";  //accessible from outside to enable querying using the column name
