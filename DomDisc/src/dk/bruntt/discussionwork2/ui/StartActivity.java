@@ -13,6 +13,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -337,8 +338,13 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 			// If the fragment is visible - feed it the DiscussionEntry. If not - launch a new Activity with the unid of the DiscussionEntry
 			if (containerForReadDiscussionEntryFragment != null) {
 				ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
-				//		      fragment.setDiscussionEntry(selectedEntry);
 
+				//Clearing the back stack - is this a good idea? I think so
+				FragmentManager fm = getSupportFragmentManager();
+				for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {    
+				    fm.popBackStack();
+				}
+				
 				// Instantiate a new fragment.
 				ReadDiscussionEntryFragment newFragment = ReadDiscussionEntryFragment.newInstance(unid);
 				// Add the fragment to the activity, pushing this transaction

@@ -6,6 +6,12 @@ import android.net.NetworkInfo;
 
 public class UserSessionTools {
 	
+	
+	
+	/**
+	 * @param ctx
+	 * @return True if we have a network connection
+	 */
 	public static boolean haveInternet(Context ctx) {
 
 		NetworkInfo info = (NetworkInfo) ((ConnectivityManager) ctx

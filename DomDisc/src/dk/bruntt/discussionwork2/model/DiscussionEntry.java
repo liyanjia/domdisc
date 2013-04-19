@@ -7,10 +7,9 @@ public class DiscussionEntry {
 	/*
 	 * Felter der er nødvendige af hensyn til ORM
 	 */
-
-	@DatabaseField(foreign=true,foreignAutoRefresh=true)
+	public static final String DISCUSSIONDB_FIELD_NAME = "discussiondatabase";  //accessible from outside to enable querying using the column name
+	@DatabaseField(foreign=true,foreignAutoRefresh=true,columnName = DISCUSSIONDB_FIELD_NAME)
 	private DiscussionDatabase discussionDatabase;
-
 	
 	/*
 	 * Alle felter her er taget fra JSON output fra Domino Discussion Database
@@ -19,9 +18,11 @@ public class DiscussionEntry {
 	 */
 	@DatabaseField
 	private String href; //http:\/\/www.jens.bruntt.dk:80\/androiddev\/discussi.nsf\/api\/data\/documents\/unid\/BFD0FF2E75F184C3C1257A3E003BC74D"
-	@DatabaseField (id=true)
+	@DatabaseField (id=true) // <- KEY for entries
 	private String unid; //BFD0FF2E75F184C3C1257A3E003BC74D"
-	@DatabaseField
+	
+	public static final String NOTEID_FIELD_NAME = "noteid";  //accessible from outside to enable querying using the column name
+	@DatabaseField (columnName = NOTEID_FIELD_NAME)
 	private String noteid; // 936
 	
 	
@@ -57,7 +58,7 @@ public class DiscussionEntry {
 	private String webCategories; //Fra Android
 	@DatabaseField
 	private String body;
-    /* 
+    /* Can have multiple formats. Here is one example:
      * {
     "type":"multipart",
     "content":        [

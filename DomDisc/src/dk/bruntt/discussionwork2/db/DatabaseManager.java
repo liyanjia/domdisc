@@ -46,12 +46,12 @@ public class DatabaseManager {
 	}
 
 	public List<DiscussionDatabase> getAllDiscussionDatabases() {
-//		Log.d("debug", "getAllDiscussionDatabases 1");
+		//		Log.d("debug", "getAllDiscussionDatabases 1");
 		List<DiscussionDatabase> DiscussionDatabases = null;
 		try {
-//			Log.d("debug", "getAllDiscussionDatabases 2");
+			//			Log.d("debug", "getAllDiscussionDatabases 2");
 			DiscussionDatabases = getHelper().getDiscussionDatabaseDao().queryForAll();
-//			Log.d("debug", "getAllDiscussionDatabases 3");
+			//			Log.d("debug", "getAllDiscussionDatabases 3");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -75,18 +75,18 @@ public class DatabaseManager {
 		}
 		return DiscussionDatabase;
 	}
-	
 
-//	public DiscussionEntry getDiscussionEntryWithId(int discussionEntryId) {
-//		DiscussionEntry discussionEntry = null;
-//		try {
-//			discussionEntry = getHelper().getDiscussionEntryDao().queryForId(discussionEntryId);
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return discussionEntry;
-//	}
-	
+
+	//	public DiscussionEntry getDiscussionEntryWithId(int discussionEntryId) {
+	//		DiscussionEntry discussionEntry = null;
+	//		try {
+	//			discussionEntry = getHelper().getDiscussionEntryDao().queryForId(discussionEntryId);
+	//		} catch (SQLException e) {
+	//			e.printStackTrace();
+	//		}
+	//		return discussionEntry;
+	//	}
+
 	public DiscussionEntry getDiscussionEntryWithId(String unid) {
 		DiscussionEntry discussionEntry = null;
 		try {
@@ -96,29 +96,52 @@ public class DatabaseManager {
 		}
 		return discussionEntry;
 	}
-	
-	
+
+
 	/**
 	 * @param discussionEntry
 	 * @return List of responses 
 	 */
 	public List<DiscussionEntry> getResponseDicussionEntries(DiscussionEntry discussionEntry) {
-		
+
 		List<DiscussionEntry> responseEntries = null;
-		
+
 		try {
 			Dao<DiscussionEntry, String> discussionEntryDao = getHelper().getDiscussionEntryDao();
 			QueryBuilder<DiscussionEntry, String> queryBuilder = discussionEntryDao.queryBuilder();
 			queryBuilder.where().eq(DiscussionEntry.PARENTID_FIELD_NAME, discussionEntry.getUnid());
 			PreparedQuery<DiscussionEntry> preparedQuery = queryBuilder.prepare();
 			responseEntries = discussionEntryDao.query(preparedQuery);
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return responseEntries;
 	}
-	
+
+	/**
+	 * @param discussionDatabase
+	 * @return List of DiscussionEntry containing entries that were created in the app
+	 * but have not yet been submitted to the database
+	 */
+	public List<DiscussionEntry> getDiscussionEntriesForSubmit(DiscussionDatabase discussionDatabase) {
+		List<DiscussionEntry> discussionEntries = null;
+
+		try {
+			Dao<DiscussionEntry, String> discussionEntryDao = getHelper().getDiscussionEntryDao();
+			QueryBuilder<DiscussionEntry, String> queryBuilder = discussionEntryDao.queryBuilder();
+			queryBuilder.where().eq(DiscussionEntry.NOTEID_FIELD_NAME, ""); // <- noteid empty means that document was created locally in the app
+			queryBuilder.where().and();
+			queryBuilder.where().eq(DiscussionEntry.DISCUSSIONDB_FIELD_NAME, discussionDatabase);
+			PreparedQuery<DiscussionEntry> preparedQuery = queryBuilder.prepare();
+			discussionEntries = discussionEntryDao.query(preparedQuery);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return discussionEntries;
+	}
+
 	public DiscussionEntry newDiscussionEntry() {
 		DiscussionEntry discussionEntry = new DiscussionEntry();
 		try {
@@ -128,15 +151,15 @@ public class DatabaseManager {
 		}
 		return discussionEntry;
 	}
-	
+
 	public void createDiscussionEntry(DiscussionEntry discussionEntry) {
-//		DiscussionEntry discussionEntry = new DiscussionEntry();
+		//		DiscussionEntry discussionEntry = new DiscussionEntry();
 		try {
 			getHelper().getDiscussionEntryDao().create(discussionEntry);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-//		return discussionEntry;
+		//		return discussionEntry;
 	}
 
 	public void deleteDiscussionDatabase(DiscussionDatabase DiscussionDatabase) {
@@ -178,9 +201,9 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
+
+
+
 	/*
 	 * ApplicationLog
 	 * 
@@ -214,7 +237,7 @@ public class DatabaseManager {
 		}
 		return appLog;
 	}
-	
+
 	public void deleteAppLog(AppLog appLog) {
 		try {
 			getHelper().getAppLogDao().delete(appLog);
@@ -222,7 +245,7 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void emptyAppLogOld() {
 		try {
 			Dao appLogDao =  getHelper().getAppLogDao();
@@ -231,27 +254,27 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public void emptyAppLog() {
-		
-			Dao appLogDao =  getHelper().getAppLogDao();
-//			UpdateBuilder<AppLog, String> updateBuilder = appLogDao.updateBuilder();
-			DeleteBuilder<AppLog, String> deleteBuilder = appLogDao.deleteBuilder();
-			
-			
-			
-			try {
-				deleteBuilder.where().isNotNull(AppLog.ID_FIELD_NAME);
-				deleteBuilder.delete();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
-		
+
+		Dao appLogDao =  getHelper().getAppLogDao();
+		//			UpdateBuilder<AppLog, String> updateBuilder = appLogDao.updateBuilder();
+		DeleteBuilder<AppLog, String> deleteBuilder = appLogDao.deleteBuilder();
+
+
+
+		try {
+			deleteBuilder.where().isNotNull(AppLog.ID_FIELD_NAME);
+			deleteBuilder.delete();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
 	}
-	
+
 
 }
