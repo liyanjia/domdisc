@@ -172,6 +172,7 @@ public class DiscussionReplicator {
 		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 		
 		ApplicationLog.d(getClass().getSimpleName() + "POST ", shouldCommitToLog);
+		//xx 
 //		boolean resultOK = restTemplate.postForObject(url, entryToSubmit, Boolean.class);
 
 //		String resultString = restTemplate.postForObject(url, entryToSubmit, String.class);

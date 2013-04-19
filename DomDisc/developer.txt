@@ -1,0 +1,14 @@
+Developer information
+
+Information Resources
+
+* Accessing Domino Data Service
+An essential resource for understanding how to communicate with the Domino Data Service JSON API.
+http://www-10.lotus.com/ldd/ddwiki.nsf/xpDocViewer.xsp?lookupName=Domino+Data+Service#action=openDocument&res_title=Accessing_Domino_Data_Service_dds10&content=pdcontent
+
+* Using Spring REST template
+http://static.springsource.org/spring-android/docs/1.0.x/reference/html/rest-template.html
+
+
+Libraries used
+
