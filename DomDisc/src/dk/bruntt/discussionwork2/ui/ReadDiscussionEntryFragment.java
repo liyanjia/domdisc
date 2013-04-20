@@ -253,9 +253,21 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 	private void populateHeader() {
 		ApplicationLog.d(getClass().getSimpleName() +  " building header", shouldCommitToLog);
 		String subject = currentDiscussionEntry.getSubject();
-		String author = currentDiscussionEntry.getAuthors();
+		String abbrFrom = currentDiscussionEntry.getAbbreviateFrom();
+		String authorToDisplay = "";
+		if (abbrFrom != null && abbrFrom.length()>0) {
+			authorToDisplay = abbrFrom;
+		} else {
+			String author = currentDiscussionEntry.getAuthors(); // getAuthors can be an arry - not handlede in the app yet - we prefer abbrFrom
+			if (author != null && author.length()>0) {
+				authorToDisplay = author;
+			} else {
+				authorToDisplay = "Unknown";
+			}
+			
+		}
 		subjectView.setText(subject);
-		authorView.setText(author);
+		authorView.setText(authorToDisplay);
 	}
 
 

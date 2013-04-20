@@ -111,6 +111,7 @@ public class DiscussionReplicator {
 				.w("Unable to start replication as Authentication with the server was not established. Stopping.");
 			} else {
 				replicateLocalDatabaseToServer(discussionDatabase, hostName,urlForDocuments, authenticationCookie);
+				// Any entries submitted will be deleted when the replicateServerToLocalDatabase runs (because the locally created entries' unids are not found in the downloaded entries)
 				if (replicateServerToLocalDatabase(discussionDatabase, hostName,urlForDocuments, authenticationCookie)) {
 					ApplicationLog.d(getClass().getSimpleName() + " Replication OK", shouldCommitToLog);
 				} else {
@@ -130,16 +131,16 @@ public class DiscussionReplicator {
 	 */
 	private boolean replicateLocalDatabaseToServer(DiscussionDatabase discussionDatabase, String hostName,
 			String urlForDocuments, String authenticationCookie) {
-		
+
 		ApplicationLog.d(getClass().getSimpleName() + " start", shouldCommitToLog);
 
 		// Bruge en metode der kan oprette en body
-		
+
 		int succesfulUploadCount = 0;
 		int failedUploadCount = 0;
-		
+
 		ArrayList<DiscussionEntry> discussionEntriesForSubmitting = (ArrayList<DiscussionEntry>) DatabaseManager.getInstance().getDiscussionEntriesForSubmit(discussionDatabase);
-		
+		ApplicationLog.d(getClass().getSimpleName() + " Found " + discussionEntriesForSubmitting.size() + " entries for submitting to the server", shouldCommitToLog);
 		Iterator<DiscussionEntry> discussionEntriesForSubmittingIterator = discussionEntriesForSubmitting.iterator();
 		while (discussionEntriesForSubmittingIterator.hasNext()) {
 			DiscussionEntry currentEntry = discussionEntriesForSubmittingIterator.next();
@@ -153,79 +154,12 @@ public class DiscussionReplicator {
 				ApplicationLog.d(getClass().getSimpleName() + " submit failed", shouldCommitToLog);
 			}
 		}
-		
+
 		ApplicationLog.d(getClass().getSimpleName() + " total succesful submits to " + discussionDatabase.getName() + ": " + succesfulUploadCount , shouldCommitToLog);
 		ApplicationLog.d(getClass().getSimpleName() + " total failed submits to " + discussionDatabase.getName() + ": " + failedUploadCount , shouldCommitToLog);
-		
-		return (succesfulUploadCount > 0);
-//
-//		
-//		//		RestTemplate restTemplate = new RestTemplate();
-//		//		restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-//		//		restTemplate.getMessageConverters().
-//		//
-//		//		// Add the gzip Accept-Encoding header
-//		//		HttpHeaders requestHeaders = new HttpHeaders();
-//		////		requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
-//		//
-//		//		ApplicationLog.d("Setting Authentication token in request header: " + authenticationCookie, shouldCommitToLog);
-//		//		requestHeaders.add("Cookie", authenticationCookie);
-//		//
-//		//		requestHeaders.add("Referer", urlForDocuments);
-//		//		requestHeaders.set("Connection", "Close"); //to remove  EOFException
-//		//
-//		//		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
-//
-//		//Sample START
-//		// Example: http://blogs.burnsidedigital.com/2012/08/how-to-create-restful-http-for-android-in-4-easy-steps-using-spring/
-////		ApplicationLog.d(getClass().getSimpleName() + "Doing just a simple hard coded POST", shouldCommitToLog);
-////		String url = urlForDocuments + "?form=xyz&computewithform"; //Only for Main Documents, not responses
-////
-////		HttpHeaders requestHeaders = new HttpHeaders();
-////		// Set the Content-Type header
-////		requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-////		
-////		ApplicationLog.d("Setting Authentication token in request header: " + authenticationCookie,
-////				shouldCommitToLog);
-////		requestHeaders.add("Cookie", authenticationCookie);
-////		//create the request body
-////		MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
-////		body.add("Subject", "subject");
-////		body.add("Categories", "Categories");
-////		body.add("Body","Body");
-////
-////		//create the request entity
-////		HttpEntity<?> requestEntity = new HttpEntity<Object>(body, requestHeaders);
-////		//Get the RestTemplate and add the message converters   
-////		RestTemplate restTemplate = new RestTemplate();
-////
-////		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-//////		messageConverters.add(new FormHttpMessageConverter());
-////		messageConverters.add(new MappingJackson2HttpMessageConverter());
-////		restTemplate.setMessageConverters(messageConverters);
-////		ApplicationLog.d(getClass().getSimpleName() + "About to POST", replicationOK);
-////		try {
-////			ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-////			HttpStatus status = response.getStatusCode();
-////			if(status == HttpStatus.CREATED) {
-////				ApplicationLog.d(getClass().getSimpleName() + "POST went OK", shouldCommitToLog);
-////				return true;
-////			}else {
-////				ApplicationLog.d(getClass().getSimpleName() + "POST failed", shouldCommitToLog);
-////				return false;
-////			}
-////		}catch (HttpClientErrorException e) {
-////			String errorMessage = e.getMessage();
-////			if (errorMessage == null) {
-////				errorMessage = "no error message";
-////			}
-////			ApplicationLog.e(getClass().getSimpleName() + "POST failed: " + errorMessage);
-////			e.printStackTrace();
-////			return false;
-////		}
-////		//Sample END
 
-//		return false;
+		return (succesfulUploadCount > 0);
+
 	}
 
 	/**
@@ -236,42 +170,42 @@ public class DiscussionReplicator {
 	 */
 	private String submitDiscussionEntry(DiscussionEntry discussionEntry, String urlForDocuments,	String authenticationCookie) {
 		String returnString = "";
-//		DiscussionEntry tempEntryToSubmit = new DiscussionEntry();
-//		tempEntryToSubmit.setSubject("Overskrift");
-//		tempEntryToSubmit.setCategories("Kategorien, Kategori2; Kategori3");
-//		tempEntryToSubmit.setBody("Dette er min lille tekst. Der er lidt sjov med komma og semikolon i categories");
-//		//We should probably have a smaller DiscussionEntry bean for submitting, one that only has the fields we want to submit.
-//		// If we don't submit From and let the server do computewithform then From should be computed on the server with proper content and field type.
-//		tempEntryToSubmit.setFrom("Jens Bruntt/Bruntt");
-		
+		//		DiscussionEntry tempEntryToSubmit = new DiscussionEntry();
+		//		tempEntryToSubmit.setSubject("Overskrift");
+		//		tempEntryToSubmit.setCategories("Kategorien, Kategori2; Kategori3");
+		//		tempEntryToSubmit.setBody("Dette er min lille tekst. Der er lidt sjov med komma og semikolon i categories");
+		//		//We should probably have a smaller DiscussionEntry bean for submitting, one that only has the fields we want to submit.
+		//		// If we don't submit From and let the server do computewithform then From should be computed on the server with proper content and field type.
+		//		tempEntryToSubmit.setFrom("Jens Bruntt/Bruntt");
+
 		DiscussionEntryForSubmitting entryToSubmit = new DiscussionEntryForSubmitting();
 		entryToSubmit.createFromDiscussionEntry(discussionEntry);
-		
-//		ApplicationLog.d(getClass().getSimpleName() + "Doing just a simple hard coded POST and computewithform=true", shouldCommitToLog);
+
+		//		ApplicationLog.d(getClass().getSimpleName() + "Doing just a simple hard coded POST and computewithform=true", shouldCommitToLog);
 
 		String formForSubmit = "";
 		String parentid = entryToSubmit.getParentid();
-		if (parentid.length() == 0) {
+		if (parentid != null && parentid.length() == 0) {
 			formForSubmit = "MainTopic";
 		} else {
 			formForSubmit = "Response";
 		}
-		
+
 		String url = urlForDocuments + "?form=" + formForSubmit + "&computewithform=true";
-		
-		if (parentid.length() > 0) {
+
+		if (parentid != null && parentid.length() > 0) {
 			url = url + "&parentid=" + parentid;
 		}
 
-		
+
 		// &parentid=unid to make a response
 		RestTemplate restTemplate = new RestTemplate();
 
-//		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-//		messageConverters.add(new MappingJackson2HttpMessageConverter());
-		
-//		restTemplate.setRequestFactory(new CommonsClientHttpRequestFactory());
-//		restTemplate.setMessageConverters(messageConverters);
+		//		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+		//		messageConverters.add(new MappingJackson2HttpMessageConverter());
+
+		//		restTemplate.setRequestFactory(new CommonsClientHttpRequestFactory());
+		//		restTemplate.setMessageConverters(messageConverters);
 
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
@@ -280,29 +214,29 @@ public class DiscussionReplicator {
 		acceptableMediaTypes.add(MediaType.APPLICATION_JSON);
 		requestHeaders.setAccept(acceptableMediaTypes);
 		requestHeaders.add("Cookie", authenticationCookie);
-				
+
 		HttpEntity<DiscussionEntryForSubmitting> requestEntity = new HttpEntity<DiscussionEntryForSubmitting>(entryToSubmit,requestHeaders);
-		
-		
-//		ResponseEntity<String> response = restTemplate.postForEntity(url, request, responseType);
-//		
-//		ResponseEntity<String> response = restTemplate.exchange(
-//				urlForDocuments, HttpMethod.GET, requestEntity,
-//				String.class);
-//		
-		
+
+
+		//		ResponseEntity<String> response = restTemplate.postForEntity(url, request, responseType);
+		//		
+		//		ResponseEntity<String> response = restTemplate.exchange(
+		//				urlForDocuments, HttpMethod.GET, requestEntity,
+		//				String.class);
+		//		
+
 		ApplicationLog.d(getClass().getSimpleName() + " Adding MappingJackson2HttpMessageConverter AND StringHttpMessageConverter to restTemplate", shouldCommitToLog);
 		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 		restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-		
+
 		ApplicationLog.d(getClass().getSimpleName() + "POST to " + url, shouldCommitToLog);
 		//xx 
-//		boolean resultOK = restTemplate.postForObject(url, entryToSubmit, Boolean.class);
+		//		boolean resultOK = restTemplate.postForObject(url, entryToSubmit, Boolean.class);
 
-//		String resultString = restTemplate.postForObject(url, entryToSubmit, String.class);
+		//		String resultString = restTemplate.postForObject(url, entryToSubmit, String.class);
 		ResponseEntity<String> httpResponse = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-//		HttpStatus status = response.getStatusCode();
-		
+		//		HttpStatus status = response.getStatusCode();
+
 		ApplicationLog.d(getClass().getSimpleName() + " resultString: " + httpResponse.toString(), shouldCommitToLog);
 		ApplicationLog.d(getClass().getSimpleName() + " statuscode: " + httpResponse.getStatusCode().value(), shouldCommitToLog);
 		if (httpResponse.hasBody()) {
@@ -310,7 +244,7 @@ public class DiscussionReplicator {
 		} else {
 			ApplicationLog.d(getClass().getSimpleName() + " body: None received" , shouldCommitToLog);
 		}
-		
+
 		HttpHeaders responseHeaders = httpResponse.getHeaders();
 		if (responseHeaders.isEmpty()) {
 			ApplicationLog.d("No response headers - then the POST did not succeeed", shouldCommitToLog);
@@ -322,7 +256,7 @@ public class DiscussionReplicator {
 				returnString = location;
 			}
 		}
-		
+
 		return returnString;
 	}
 
@@ -781,6 +715,7 @@ public class DiscussionReplicator {
 
 		if (fieldName.contains("Body")) {
 			// If the Body field is not just plain text we will go for the more complicated extraction
+			ApplicationLog.d(getClass().getSimpleName() + " getDominoValueFromJson handling Body", shouldCommitToLog);
 			returnValue = getBodyFieldValue(jsonDocument, fieldName, returnValue);
 
 
@@ -798,8 +733,9 @@ public class DiscussionReplicator {
 	}
 
 	private String getBodyFieldValue(JSONObject jsonDocument, String fieldName,	String returnValue) {
+		ApplicationLog.d(getClass().getSimpleName() + " getBodyFiledValue start", shouldCommitToLog);
 		try {
-			JSONObject bodyObjectArray = jsonDocument.getJSONObject(fieldName);
+			JSONObject bodyObjectArray = jsonDocument.getJSONObject(fieldName); // If Body content is simple we will handle this in the JSONException
 			JSONArray bodyArray = bodyObjectArray.getJSONArray("content");
 			for (int i = 0; i < bodyArray.length(); i++) {
 				JSONObject bodyItem = bodyArray.getJSONObject(i);
@@ -869,7 +805,9 @@ public class DiscussionReplicator {
 			// Most likely we're here because the Body item is not an array but a simple field instead
 			ApplicationLog.d(fieldName + " is not an array - looking for simple field ", shouldCommitToLog);
 			try {
-				returnValue = jsonDocument.getString(fieldName);
+				String contentValue =  jsonDocument.getString(fieldName);
+				String htmlValue = contentValue.replaceAll("\n", "<br>");
+				returnValue = htmlValue;
 			} catch (JSONException e1) {
 				// If we're here we give up trying
 				ApplicationLog.d("Exception: " + e.getMessage(), shouldCommitToLog);

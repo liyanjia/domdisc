@@ -133,11 +133,14 @@ public class DatabaseManager {
 			QueryBuilder<DiscussionEntry, String> queryBuilder = discussionEntryDao.queryBuilder();
 			Where<DiscussionEntry, String> where = queryBuilder.where();
 
-			where.eq(DiscussionEntry.NOTEID_FIELD_NAME, ""); // <- noteid empty means that document was created locally in the app
+//			where.eq(DiscussionEntry.NOTEID_FIELD_NAME, ""); // <- noteid empty means that document was created locally in the app
+			where.isNull(DiscussionEntry.NOTEID_FIELD_NAME); // <- noteid empty means that document was created locally in the app
 			where.and();
 			where.eq(DiscussionEntry.DISCUSSIONDB_FIELD_NAME, discussionDatabase);
 			
 			PreparedQuery<DiscussionEntry> preparedQuery = queryBuilder.prepare();
+			
+			Log.d(getClass().getSimpleName(),  " PreparedQuery: " + preparedQuery.toString());
 			discussionEntries = discussionEntryDao.query(preparedQuery);
 
 		} catch (SQLException e) {

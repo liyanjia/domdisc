@@ -70,6 +70,8 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		}
 
 		showSpinner();
+		ApplicationLog.d("On resume in configurations view - calling scheduler to make sure scheduled replication is running", shouldCommitToLog);
+		PollReceiver.scheduleAlarms(this);
 	}
 
 
