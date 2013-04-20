@@ -39,19 +39,6 @@
         android:scrollHorizontally="false" 
         android:hint="@string/body_hint"
         />
-    
-    
 
-    <Button
-        android:id="@+id/button_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save" />
-
-    <Button
-        android:id="@+id/button_delete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delete" />
 
 </LinearLayout>

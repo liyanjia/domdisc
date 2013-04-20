@@ -29,6 +29,7 @@ import com.actionbarsherlock.view.MenuItem;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.ui.AddDiscussionEntryActivity;
 import dk.bruntt.discussionwork2.R;
 
 //import android.widget.Button;

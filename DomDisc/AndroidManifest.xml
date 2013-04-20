@@ -30,7 +30,7 @@
             android:name="dk.bruntt.discussionwork2.AddDiscussionDatabaseActivity"
             android:label="Add discussion database" />
         <activity
-            android:name="dk.bruntt.discussionwork2.AddDiscussionEntryActivity"
+            android:name="dk.bruntt.discussionwork2.ui.AddDiscussionEntryActivity"
             android:label="Add discussion entry" />
         <activity
             android:name="dk.bruntt.discussionwork2.ReadDiscussionEntryActivity"

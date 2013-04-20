@@ -1,4 +1,4 @@
-package dk.bruntt.discussionwork2;
+package dk.bruntt.discussionwork2.ui;
 
 import java.util.UUID;
 
@@ -7,9 +7,14 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
+import dk.bruntt.discussionwork2.R.id;
+import dk.bruntt.discussionwork2.R.layout;
+import dk.bruntt.discussionwork2.R.menu;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionDatabase;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
+import dk.bruntt.discussionwork2.ApplicationLog;
+import dk.bruntt.discussionwork2.Constants;
 import dk.bruntt.discussionwork2.R;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +37,7 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 	private EditText editBody;
 	private EditText editCategories;
 	private DiscussionDatabase discussionDatabase;
+	private DiscussionEntry parentDiscussionEntry;
 	private boolean shouldCommitToLog = false;
 //	private DiscussionEntry discussionEntry;
 //	private Button deleteButton;
@@ -45,14 +51,18 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
         editSubject = (EditText) contentView.findViewById(R.id.edit_subject);
         editBody = (EditText) contentView.findViewById(R.id.edit_body);
         editCategories = (EditText) contentView.findViewById(R.id.edit_categories);
-//        deleteButton = (Button) contentView.findViewById(R.id.button_delete);
-
-//        Button btn = (Button) contentView.findViewById(R.id.button_save);
-//        setupSaveButton(btn);
 
         setContentView(contentView);
         
         setupDiscussionDatabase();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        String title = "";
+        if (parentDiscussionEntry != null) {
+        	title = "New response to" + parentDiscussionEntry.getSubject();
+        } else {
+        	title = "New discussion thread";
+        }
+        getSupportActionBar().setTitle(title);
 //        setupDiscussionEntry();
 	}
 	
@@ -67,9 +77,8 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	   switch (item.getItemId()) {
 	      case android.R.id.home:
-//	         NavUtils.navigateUpTo(this, new Intent(this, DiscussionEntriesViewActivity.class));
-//	    	  NavUtils.navigateUpTo(this, new Intent(this, dk.bruntt.discussionwork2.ui.StartActivity.class));
-	    	  NavUtils.navigateUpFromSameTask(this);
+//	    	  NavUtils.navigateUpFromSameTask(this);
+	    	  finish(); // stops  this Activity
 	         return true;
 	      case R.id.menu_save:
 	    	  
@@ -78,6 +87,7 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 	    	  String categories = editCategories.getText().toString();
 	    	  
 	    	  createNewDiscussionEntry(subject, body, categories);
+	    	  finish(); // stops  this Activity
 	    	  return true;
 	   }
 	   return super.onOptionsItemSelected(item);
@@ -85,90 +95,24 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 	
 	
 	
-	
-	
+
+
 	private void setupDiscussionDatabase() {
 		Bundle bundle = getIntent().getExtras();
-		if (null!=bundle && bundle.containsKey(Constants.keyDiscussionDatabaseId)) {
-			int discussionDatabaseId = bundle.getInt(Constants.keyDiscussionDatabaseId);
-	        discussionDatabase = DatabaseManager.getInstance().getDiscussionDatabaseWithId(discussionDatabaseId);	
+		if (null!=bundle) {
+			if (bundle.containsKey(Constants.keyDiscussionDatabaseId)) {
+				int discussionDatabaseId = bundle.getInt(Constants.keyDiscussionDatabaseId);
+				discussionDatabase = DatabaseManager.getInstance().getDiscussionDatabaseWithId(discussionDatabaseId);
+			}
+			if (bundle.containsKey(Constants.keyDiscussionEntryId)) {
+				String discussionEntryId = bundle.getString(Constants.keyDiscussionEntryId);
+				parentDiscussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(discussionEntryId);
+			}
 		}
+		
+//		Same as above for the parentID
+		
 	}
-
-//	private void setupDiscussionEntry() {
-//		Bundle bundle = getIntent().getExtras();
-//		if (null!=bundle && bundle.containsKey(Constants.keyDiscussionEntryId)) {
-//			String discussionEntryId = bundle.getString(Constants.keyDiscussionEntryId);
-//			discussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(discussionEntryId);
-//			editSubject.setText(discussionEntry.getSubject());
-//			editBody.setText(discussionEntry.getBody());
-//			deleteButton.setVisibility(View.VISIBLE);
-//			setupDeleteButton();
-//		} else {
-//			deleteButton.setVisibility(View.INVISIBLE);
-//		}
-//	}
-
-//	private void setupSaveButton(Button btn) {
-//		final Activity activity = this;
-//		btn.setOnClickListener(new OnClickListener() {
-//			public void onClick(View v) {
-//				String name = editSubject.getText().toString();
-//				String description = editBody.getText().toString();
-//				boolean isValid = notEmpty(name) && notEmpty(description);
-//				if (isValid) {
-//					if (null==discussionEntry) {
-//						createNewDiscussionEntry(name,description);
-//					} else {
-//						updateWishItem(name,description);
-//					}
-//					finish();
-//				} else {
-//					new AlertDialog.Builder(activity)
-//					.setTitle("Error")
-//					.setMessage("All fields must be filled")
-//					.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog, int which) {
-//							dialog.dismiss();
-//						}
-//					})
-//					.show();
-//				}
-//			}
-//		});
-//	}
-	
-//	private void setupDeleteButton() {
-//		if (null!=deleteButton) {
-//			final Activity activity = this;
-//			deleteButton.setOnClickListener(new OnClickListener() {
-//				public void onClick(View v) {
-//					new AlertDialog.Builder(activity)
-//					.setTitle("Warning")
-//					.setMessage("Are you sure you would like to delete wish '"+discussionEntry.getSubject()+"'?")
-//					.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog, int which) {
-//							DatabaseManager.getInstance().deleteDiscussionEntry(discussionEntry);
-//							dialog.dismiss();
-//							activity.finish();
-//						}
-//					})
-//					.setNegativeButton("No", new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog, int which) {
-//							dialog.dismiss();
-//						}
-//					})
-//					.show();
-//				}
-//			});
-//		}
-//	}
-
-//	protected void updateWishItem(String subject, String body) {
-//		discussionEntry.setSubject(subject);
-//		discussionEntry.setBody(body);
-//		DatabaseManager.getInstance().updateDiscussionEntry(discussionEntry);
-//	}
 
 	boolean notEmpty(String s) {
 		return null!=s && s.length()>0;
@@ -181,11 +125,13 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 			discussionEntry.setBody(body);
 			discussionEntry.setCategories(categories);
 			discussionEntry.setDiscussionDatabase(discussionDatabase);
+			if (parentDiscussionEntry != null) {
+				discussionEntry.setParentid(parentDiscussionEntry.getParentid());
+			}
 			UUID uuid = UUID.randomUUID();
 			discussionEntry.setUnid(String.valueOf(uuid));
 			ApplicationLog.d(getClass().getSimpleName() + " unid: " + String.valueOf(uuid), shouldCommitToLog);
 			
-//			DatabaseManager.getInstance().updateDiscussionEntry(discussionEntry);
 			DatabaseManager.getInstance().createDiscussionEntry(discussionEntry);
 			
 		} else {

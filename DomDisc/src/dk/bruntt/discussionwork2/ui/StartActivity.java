@@ -26,7 +26,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-import dk.bruntt.discussionwork2.AddDiscussionEntryActivity;
 import dk.bruntt.discussionwork2.ApplicationLog;
 import dk.bruntt.discussionwork2.Constants;
 import dk.bruntt.discussionwork2.DatabaseConfigurationsActivity;
