@@ -119,7 +119,7 @@ public final static int create_menu_id = 9874;
 		ApplicationLog.d(getClass().getSimpleName() +  " onCreateView", shouldCommitToLog);
 		DatabaseManager.init(myActivity);
 		View view = inflater.inflate(R.layout.read_discussion_entry_with_children, container, false);
-		
+		//temp
 		subjectView = (TextView) view.findViewById(R.id.subject);
 		authorView = (TextView) view.findViewById(R.id.author);
 		toggleBodyResponsesVisible = (Button) view.findViewById(R.id.toggle_body_responses);
