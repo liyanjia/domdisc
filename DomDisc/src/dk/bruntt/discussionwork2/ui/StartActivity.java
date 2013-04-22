@@ -146,10 +146,8 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu start", shouldCommitToLog);
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.activity_discussion_entries_view, menu);
-		ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu step 1", shouldCommitToLog);
 		// disable the home button and the up affordance:
 		getSupportActionBar().setHomeButtonEnabled(false);
-		ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu step 2", shouldCommitToLog);
 		return true;
 	}
 

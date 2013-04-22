@@ -54,7 +54,7 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 
         setContentView(contentView);
         
-        setupDiscussionDatabase();
+        setupDiscussionDatabaseAndParent();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         String title = "";
         if (parentDiscussionEntry != null) {
@@ -97,7 +97,7 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 	
 
 
-	private void setupDiscussionDatabase() {
+	private void setupDiscussionDatabaseAndParent() {
 		Bundle bundle = getIntent().getExtras();
 		if (null!=bundle) {
 			if (bundle.containsKey(Constants.keyDiscussionDatabaseId)) {

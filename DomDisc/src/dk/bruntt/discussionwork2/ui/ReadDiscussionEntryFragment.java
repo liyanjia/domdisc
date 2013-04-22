@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,9 +24,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
+import dk.bruntt.discussionwork2.AddDiscussionDatabaseActivity;
 import dk.bruntt.discussionwork2.ApplicationLog;
 import dk.bruntt.discussionwork2.Constants;
 import dk.bruntt.discussionwork2.ReadDiscussionEntryActivity;
@@ -36,6 +42,7 @@ import dk.bruntt.discussionwork2.R;
 
 public class ReadDiscussionEntryFragment extends SherlockFragment implements OnClickListener {
 
+public final static int create_menu_id = 9874;
 	private DiscussionEntry currentDiscussionEntry = null;
 	private String currentUnid = "";
 	private boolean shouldCommitToLog = false;
@@ -86,6 +93,7 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
                 currentUnid = unid.toString();
             }
         }
+        setHasOptionsMenu(true);
     }
 
 	
@@ -116,6 +124,28 @@ public class ReadDiscussionEntryFragment extends SherlockFragment implements OnC
 		
 		return view;
 	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+		ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu start", shouldCommitToLog);
+		menu.add("Menu 1a").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		menu.add(com.actionbarsherlock.view.Menu.NONE, create_menu_id, com.actionbarsherlock.view.Menu.NONE, "Create Response");
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		final Activity activity = getActivity();
+		Intent intent = null;
+		switch (item.getItemId()) {
+		case create_menu_id:
+			intent = new Intent(activity,AddDiscussionEntryActivity.class);
+			intent.putExtra(Constants.keyDiscussionDatabaseId, currentDiscussionEntry.getDiscussionDatabase().getId());
+			intent.putExtra(Constants.keyDiscussionEntryId, currentDiscussionEntry.getUnid());
+			startActivity (intent);
+			return true;
+		}
+		return true;
+		}
 	
 	@Override
 	public void onClick(View v){
