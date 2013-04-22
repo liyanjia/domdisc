@@ -154,7 +154,7 @@ public final static int create_menu_id = 9874;
 		String noteId = currentDiscussionEntry.getNoteid();
 		
 		if (noteId != null && noteId.length() > 0) {
-			menu.add(com.actionbarsherlock.view.Menu.NONE, create_menu_id, com.actionbarsherlock.view.Menu.NONE, "Create Response").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);			
+			menu.add(com.actionbarsherlock.view.Menu.NONE, create_menu_id, com.actionbarsherlock.view.Menu.NONE, "Create Response").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		} {
 			ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu not displaying Create Response button because current entry was created locally and not yet replicated to the server", shouldCommitToLog);
 		}
@@ -276,31 +276,6 @@ public final static int create_menu_id = 9874;
 						listener.onResponseViewItemSelected(item.getUnid());
 					}
 				});
-				
-				
-//				final Activity activity = getActivity();
-//				responseView.setOnItemClickListener(new OnItemClickListener() {
-//					public void onItemClick(AdapterView<?> parent, View view,
-//							int position, long id) {
-//						DiscussionEntry item = responseEntries.get(position);
-//						setDiscussionEntry(item);
-////						Intent intent = new Intent(activity,
-////								ReadDiscussionEntryActivity.class);
-////						intent.putExtra(Constants.keyDiscussionEntryId,
-////								item.getUnid());
-////						startActivity(intent);
-//						
-////						ReadDiscussionEntryFragment newFragment = new ReadDiscussionEntryFragment(); 
-////						FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-////				        ft.replace(R.id.responsesview, newFragment);
-////				        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-////				        ft.addToBackStack(null);
-////				        ft.commit();
-//						
-//						
-//					}
-//				});
-				
 			}
 		}
 		
