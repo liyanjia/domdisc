@@ -16,7 +16,7 @@
     
     <!-- ReadDiscussionEntryFragment -->
 	<string name="toggle_body_responses_button_responses_visible">show text</string>
-	<string name="toggle_body_responses_button_body_visible">show responses</string>
+	<string name="toggle_body_responses_button_body_visible">show %1 responses</string>
 	
 	<!-- PreferenceActivity -->
     <string name="preference_category_logging">Logging</string>

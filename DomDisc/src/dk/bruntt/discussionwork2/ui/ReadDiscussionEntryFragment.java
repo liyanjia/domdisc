@@ -8,6 +8,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
@@ -54,6 +55,8 @@ public final static int create_menu_id = 9874;
 	private WebView webView;
 	private ListView responseView;
 	private Button toggleBodyResponsesVisible;
+	
+	int responseCount = 0; // Nuber of resposes for the currentDiscussionEntry
 	
 	ArrayAdapter<String> adapter = null;
 	
@@ -198,7 +201,14 @@ public final static int create_menu_id = 9874;
 		if (showBody == true) {
 			webView.setVisibility(View.VISIBLE);
 			responseView.setVisibility(View.GONE);
-			toggleBodyResponsesVisible.setText(R.string.toggle_body_responses_button_body_visible);
+			String buttonText = getResources().getString(R.string.toggle_body_responses_button_body_visible);
+			buttonText = buttonText.replace("%1", String.valueOf(responseCount));
+			toggleBodyResponsesVisible.setText(buttonText);
+			if (responseCount == 0) {
+				toggleBodyResponsesVisible.setTextColor(Color.GRAY);	
+			}
+//			toggleBodyResponsesVisible.setText(R.string.toggle_body_responses_button_body_visible);
+			
 		} else {
 			webView.setVisibility(View.GONE);
 			responseView.setVisibility(View.VISIBLE);
@@ -229,23 +239,26 @@ public final static int create_menu_id = 9874;
 	}
 	
 	private void populateFooter() {
-		// TODO Auto-generated method stub
 
 //		Populate Response View
 		ApplicationLog.d(getClass().getSimpleName() +  " building footer ", shouldCommitToLog);
 		
 		final List<DiscussionEntry> responseEntries = DatabaseManager.getInstance().getResponseDicussionEntries(currentDiscussionEntry);
 		
-		if (responseEntries == null || responseEntries.size() == 0	) {
+		if (responseEntries != null) {
+			responseCount = responseEntries.size();	
+		}
+		
+		if (responseEntries == null || responseCount == 0	) {
 			ApplicationLog.d(getClass().getSimpleName() + " No responses. Will not display any", shouldCommitToLog);
 			if (adapter != null) {
 				adapter.clear();
 				adapter.notifyDataSetInvalidated();	
 			}
 		} else {
-			ApplicationLog.d(getClass().getSimpleName() + " number of responses: " + responseEntries.size(), shouldCommitToLog);
+			ApplicationLog.d(getClass().getSimpleName() + " number of responses: " + responseCount, shouldCommitToLog);
 			
-			if (responseEntries.size() > 0) {
+			if (responseCount > 0) {
 				List<String> titles = new ArrayList<String>();
 				for (DiscussionEntry responseEntry : responseEntries) {
 					titles.add(responseEntry.getSubject());

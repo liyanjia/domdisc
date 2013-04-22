@@ -1,5 +1,6 @@
 package dk.bruntt.discussionwork2.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,12 +8,16 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 
+import dk.bruntt.discussionwork2.AddDiscussionDatabaseActivity;
 import dk.bruntt.discussionwork2.ApplicationLog;
+import dk.bruntt.discussionwork2.PreferenceActivity;
 import dk.bruntt.discussionwork2.R;
 import dk.bruntt.discussionwork2.db.DatabaseManager;
 import dk.bruntt.discussionwork2.model.DiscussionEntry;
@@ -44,20 +49,12 @@ public class ReadDiscussionEntry2Activity extends SherlockFragmentActivity imple
 		 */
 		setContentView(R.layout.read_discussion_entry2);
 		Bundle extras = getIntent().getExtras();
+		String unid = "";
 		if (extras != null) {
-			String unid = extras.getString(EXTRA_URL);
+			unid = extras.getString(EXTRA_URL);
 			if (unid == null || unid == "") {
 				ApplicationLog.w(getClass().getSimpleName() + " NO unid received: " + unid);
 			} else {
-				//	    	  ApplicationLog.d(getClass().getSimpleName() + " unid received: " + unid, shouldCommitToLog);
-				//		      
-				//		      DiscussionEntry discussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(unid); 
-				//		      
-				//		      ApplicationLog.d(getClass().getSimpleName() + " Document to show: " + discussionEntry.getSubject(), shouldCommitToLog);
-				//		      
-				//		      ReadDiscussionEntryFragment fragment = (ReadDiscussionEntryFragment) getSupportFragmentManager().findFragmentById(R.id.discussionEntryFragment);
-				//		      fragment.setDiscussionEntry(discussionEntry);
-
 				FrameLayout containerForReadDiscussionEntryFragment = (FrameLayout) findViewById(R.id.discussionEntryFragment);
 
 				if (containerForReadDiscussionEntryFragment != null) {
@@ -79,8 +76,39 @@ public class ReadDiscussionEntry2Activity extends SherlockFragmentActivity imple
 			}
 
 		}
+		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		setActivityTitle(unid);
 	}
 
+
+	private void setActivityTitle(String unid) {
+		//this bit is only in the Activity that is displayed for smaller devices. It does not make sense to change the title for the landscape layout
+		if (unid != null && unid.length()>0) {
+			DiscussionEntry currentEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(unid);
+			if (currentEntry != null) {
+				String subject = currentEntry.getSubject();
+				getSupportActionBar().setTitle(subject);
+			}
+		}
+	}
+
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			//                NavUtils.navigateUpTo(this, new Intent(this, DiscussionEntriesViewActivity.class));
+			NavUtils.navigateUpTo(this, new Intent(this, dk.bruntt.discussionwork2.ui.StartActivity.class));
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	
+	
+	
 	private static boolean getLogALot(Context ctxt) {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(ctxt);
@@ -124,7 +152,8 @@ public class ReadDiscussionEntry2Activity extends SherlockFragmentActivity imple
 						ReadDiscussionEntry2Activity.class);
 				intent.putExtra(ReadDiscussionEntry2Activity.EXTRA_URL, unid);
 				startActivity(intent);
-			}	
+			}
+			setActivityTitle(unid);
 		}
 
 	}
