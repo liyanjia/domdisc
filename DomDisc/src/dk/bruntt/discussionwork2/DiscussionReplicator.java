@@ -170,25 +170,16 @@ public class DiscussionReplicator {
 	 */
 	private String submitDiscussionEntry(DiscussionEntry discussionEntry, String urlForDocuments,	String authenticationCookie) {
 		String returnString = "";
-		//		DiscussionEntry tempEntryToSubmit = new DiscussionEntry();
-		//		tempEntryToSubmit.setSubject("Overskrift");
-		//		tempEntryToSubmit.setCategories("Kategorien, Kategori2; Kategori3");
-		//		tempEntryToSubmit.setBody("Dette er min lille tekst. Der er lidt sjov med komma og semikolon i categories");
-		//		//We should probably have a smaller DiscussionEntry bean for submitting, one that only has the fields we want to submit.
-		//		// If we don't submit From and let the server do computewithform then From should be computed on the server with proper content and field type.
-		//		tempEntryToSubmit.setFrom("Jens Bruntt/Bruntt");
 
 		DiscussionEntryForSubmitting entryToSubmit = new DiscussionEntryForSubmitting();
 		entryToSubmit.createFromDiscussionEntry(discussionEntry);
 
-		//		ApplicationLog.d(getClass().getSimpleName() + "Doing just a simple hard coded POST and computewithform=true", shouldCommitToLog);
-
 		String formForSubmit = "";
 		String parentid = entryToSubmit.getParentid();
-		if (parentid != null && parentid.length() == 0) {
-			formForSubmit = "MainTopic";
-		} else {
+		if (parentid != null && parentid.length() > 0) {
 			formForSubmit = "Response";
+		} else {
+			formForSubmit = "MainTopic";
 		}
 
 		String url = urlForDocuments + "?form=" + formForSubmit + "&computewithform=true";
@@ -198,14 +189,7 @@ public class DiscussionReplicator {
 		}
 
 
-		// &parentid=unid to make a response
 		RestTemplate restTemplate = new RestTemplate();
-
-		//		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-		//		messageConverters.add(new MappingJackson2HttpMessageConverter());
-
-		//		restTemplate.setRequestFactory(new CommonsClientHttpRequestFactory());
-		//		restTemplate.setMessageConverters(messageConverters);
 
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
@@ -217,25 +201,12 @@ public class DiscussionReplicator {
 
 		HttpEntity<DiscussionEntryForSubmitting> requestEntity = new HttpEntity<DiscussionEntryForSubmitting>(entryToSubmit,requestHeaders);
 
-
-		//		ResponseEntity<String> response = restTemplate.postForEntity(url, request, responseType);
-		//		
-		//		ResponseEntity<String> response = restTemplate.exchange(
-		//				urlForDocuments, HttpMethod.GET, requestEntity,
-		//				String.class);
-		//		
-
 		ApplicationLog.d(getClass().getSimpleName() + " Adding MappingJackson2HttpMessageConverter AND StringHttpMessageConverter to restTemplate", shouldCommitToLog);
 		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 		restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
 		ApplicationLog.d(getClass().getSimpleName() + "POST to " + url, shouldCommitToLog);
-		//xx 
-		//		boolean resultOK = restTemplate.postForObject(url, entryToSubmit, Boolean.class);
-
-		//		String resultString = restTemplate.postForObject(url, entryToSubmit, String.class);
 		ResponseEntity<String> httpResponse = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-		//		HttpStatus status = response.getStatusCode();
 
 		ApplicationLog.d(getClass().getSimpleName() + " resultString: " + httpResponse.toString(), shouldCommitToLog);
 		ApplicationLog.d(getClass().getSimpleName() + " statuscode: " + httpResponse.getStatusCode().value(), shouldCommitToLog);
@@ -315,14 +286,18 @@ public class DiscussionReplicator {
 					JSONArray jsonArray = new JSONArray(jsonString);
 
 					ApplicationLog.d(
-							"Number of entries " + jsonArray.length(),
-							shouldCommitToLog);
+							"Number of entries downloaded" + jsonArray.length(), shouldCommitToLog);
 
 					if (jsonArray.length() > 0) {
-						handleJsonDiscussionEntries(jsonArray, discussionDatabase, authenticationCookie);
-
+						/**
+						 * Because no entries were downloaded we will not enter here. This has the effect that if the server database
+						 * actually is empty, this will not reflect on the local database, because deletions are handled in handleJsonDiscussionEntries.
+						 * We assume that if we download 0 entries, something is wrong with the downloaded content, and we do not dare let
+						 * the code do deletions locally
+						 */
+						handleJsonDiscussionEntries(jsonArray, discussionDatabase, authenticationCookie); 
 					} else {
-						ApplicationLog.i("No entries retrieved. Nothing to do");
+						ApplicationLog.i("No entries retrieved. Will not do any local deletions");
 					}
 					replicationOK = true;
 

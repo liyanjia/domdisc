@@ -91,12 +91,25 @@ public final static int create_menu_id = 9874;
             if (unid != null) {
             	ApplicationLog.d(getClass().getSimpleName() + " got a unid: " + unid, shouldCommitToLog);
                 currentUnid = unid.toString();
+                currentDiscussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(currentUnid);
             }
         }
         setHasOptionsMenu(true);
     }
 
 	
+	@Override
+	public void onStart() {
+		super.onStart();
+		//Mved this here from the OnCreateView method in order to do a refresh when composing Reponse documents and returning to this Activity
+		if (currentDiscussionEntry == null)  {
+			ApplicationLog.w(getClass().getSimpleName() +  " onStart: No discussionEntry to show");
+		} else {
+			populateFooter();
+		}
+		
+	}
+
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
@@ -113,13 +126,18 @@ public final static int create_menu_id = 9874;
 //		webView.setVisibility(View.GONE);
 		responseView = (ListView) view.findViewById(R.id.responsesview);
 		
-		//If we were fed a unid from a Bundle, we will proceed and load the Document and show it
-		if (currentUnid != null) {
-			DatabaseManager.init(myActivity);
-			currentDiscussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(currentUnid);
-			if (currentDiscussionEntry != null) {
-				setDiscussionEntry(currentDiscussionEntry);
-			}
+//		Moved to onStart
+//		If we were fed a unid from a Bundle, we will proceed and load the Document and show it
+//		if (currentUnid != null) {
+//			DatabaseManager.init(myActivity);
+//			currentDiscussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(currentUnid);
+//			if (currentDiscussionEntry != null) {
+//				setDiscussionEntry(currentDiscussionEntry);
+//			}
+//		}
+		
+		if (currentDiscussionEntry != null) {
+			setDiscussionEntry(currentDiscussionEntry);
 		}
 		
 		return view;
@@ -127,9 +145,18 @@ public final static int create_menu_id = 9874;
 	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-		ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu start", shouldCommitToLog);
-		menu.add("Menu 1a").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		menu.add(com.actionbarsherlock.view.Menu.NONE, create_menu_id, com.actionbarsherlock.view.Menu.NONE, "Create Response");
+		
+//		menu.add("Menu 1a").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		
+		String noteId = currentDiscussionEntry.getNoteid();
+		
+		if (noteId != null && noteId.length() > 0) {
+			menu.add(com.actionbarsherlock.view.Menu.NONE, create_menu_id, com.actionbarsherlock.view.Menu.NONE, "Create Response").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);			
+		} {
+			ApplicationLog.d(getClass().getSimpleName() + " onCreateOptionsMenu not displaying Create Response button because current entry was created locally and not yet replicated to the server", shouldCommitToLog);
+		}
+		
+		
 	}
 	
 	@Override
@@ -192,7 +219,7 @@ public final static int create_menu_id = 9874;
 			currentDiscussionEntry = discussionEntry;
 			populateHeader();
 			populateBody();
-			populateFooter();	
+			populateFooter(); // 	
 			showBody = true; //Default is to show the body text
 			enforceBodyResponsesVisibility();
 		}
@@ -200,7 +227,7 @@ public final static int create_menu_id = 9874;
 		// Show UP ?
 		//SHow Action buttons?
 	}
-
+	
 	private void populateFooter() {
 		// TODO Auto-generated method stub
 

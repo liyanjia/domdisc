@@ -62,7 +62,7 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 			// If the fragment is visible - Do first time initialization -- add initial fragment.
 			if (containerForReadDiscussionEntryFragment != null ) {
 				ApplicationLog.d(getClass().getSimpleName() + " fragment is in layout", shouldCommitToLog);
-				Fragment newFragment = new ReadDiscussionEntryFragment();
+				Fragment newFragment = new InitialRightPaneFragment();
 				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 				ft.add(R.id.discussionEntryFragment, newFragment).commit();
 			}

@@ -108,10 +108,7 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 				String discussionEntryId = bundle.getString(Constants.keyDiscussionEntryId);
 				parentDiscussionEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(discussionEntryId);
 			}
-		}
-		
-//		Same as above for the parentID
-		
+		}	
 	}
 
 	boolean notEmpty(String s) {
@@ -120,17 +117,25 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
 
 	private void createNewDiscussionEntry(String subject,String body, String categories) {
 		if (null!=discussionDatabase) {
+			ApplicationLog.d(getClass().getSimpleName() + " Creating a new entry", shouldCommitToLog);
 			DiscussionEntry discussionEntry = new DiscussionEntry();
 			discussionEntry.setSubject(subject);
 			discussionEntry.setBody(body);
-			discussionEntry.setCategories(categories);
 			discussionEntry.setDiscussionDatabase(discussionDatabase);
-			if (parentDiscussionEntry != null) {
-				discussionEntry.setParentid(parentDiscussionEntry.getParentid());
-			}
 			UUID uuid = UUID.randomUUID();
-			discussionEntry.setUnid(String.valueOf(uuid));
-			ApplicationLog.d(getClass().getSimpleName() + " unid: " + String.valueOf(uuid), shouldCommitToLog);
+			discussionEntry.setUnid(String.valueOf(uuid)); //All entries have to have a value in unid - therefore we create one
+//			ApplicationLog.d(getClass().getSimpleName() + " unid: " + String.valueOf(uuid), shouldCommitToLog);
+			
+			if (parentDiscussionEntry != null) {
+				discussionEntry.setForm("Response");
+				discussionEntry.setParentid(parentDiscussionEntry.getUnid());
+				ApplicationLog.d(getClass().getSimpleName() + " A Response with parent id: " + discussionEntry.getParentid(), shouldCommitToLog);
+			} else {
+				discussionEntry.setForm("MainTopic");
+				discussionEntry.setCategories(categories);
+				ApplicationLog.d(getClass().getSimpleName() + " A Main Document", shouldCommitToLog);
+			}
+			
 			
 			DatabaseManager.getInstance().createDiscussionEntry(discussionEntry);
 			
