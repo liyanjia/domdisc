@@ -504,134 +504,110 @@ public class DiscussionReplicator {
 	private DiscussionEntry getFullEntryFromServer(
 			DiscussionEntry discussionEntry, String authenticationCookie) {
 
-		if (UserSessionTools.haveInternet(context)) {
+		//		if (UserSessionTools.haveInternet(context)) {
+		//			ApplicationLog
+		//			.i("Internet connection is available - will replicate");
 
-			//			Log.i(getClass().getSimpleName(),
-			//					"Internet connection is available");
-			ApplicationLog
-			.i("Internet connection is available - will replicate");
-			//			Log.i(getClass().getSimpleName(), "Will replicate");
+		DiscussionDatabase discussionDatabase = discussionEntry
+				.getDiscussionDatabase();
 
-			DiscussionDatabase discussionDatabase = discussionEntry
-					.getDiscussionDatabase();
+		String urlForDocuments = discussionEntry.getHref();
 
-			// String hostName = discussionDatabase.getHostName();
-			// String dbPath = discussionDatabase.getDbPath();
-			// String httpPort = discussionDatabase.getHttpPort();
-			// String password = discussionDatabase.getPassword();
-			// String userName = discussionDatabase.getUserName();
-			String urlForDocuments = discussionEntry.getHref();
+		ApplicationLog.i("Accesing " + urlForDocuments);
 
-			ApplicationLog.i("Accesing " + urlForDocuments);
+		ApplicationLog.d("Starting", shouldCommitToLog);
 
-			ApplicationLog.d("Starting", shouldCommitToLog);
+		// Add the gzip Accept-Encoding header
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
+		requestHeaders.set("Connection", "Close"); //to remove  EOFException
 
-			// Add the gzip Accept-Encoding header
-			HttpHeaders requestHeaders = new HttpHeaders();
-			requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
-			requestHeaders.set("Connection", "Close"); //to remove  EOFException
+		if (authenticationCookie != "") {
 
-			if (authenticationCookie != "") {
+			ApplicationLog.d("Setting authentication token in request header",
+					shouldCommitToLog);
 
-				ApplicationLog.d("Setting authentication token in request header",
-						shouldCommitToLog);
-
-				requestHeaders.add("Cookie", authenticationCookie);
-			}
-
-			HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
-
-			RestTemplate restTemplate = new RestTemplate();
-			restTemplate.getMessageConverters().add(
-					new StringHttpMessageConverter());
-
-			String jsonString;
-			try {
-				ResponseEntity<String> response = restTemplate.exchange(
-						urlForDocuments, HttpMethod.GET, requestEntity,
-						String.class);
-				jsonString = response.getBody();
-
-				//				Log.d(getClass().getSimpleName(), "String received length: "
-				//						+ jsonString.length());
-
-				ApplicationLog.d(
-						"String received length: " + jsonString.length(),
-						shouldCommitToLog);
-
-				// Log.d(getClass().getSimpleName(), jsonString);
-
-				if (!isThisALoginForm(jsonString)) {
-					try {
-						JSONObject jsonDocument = new JSONObject(jsonString);
-						if (jsonDocument.length() > 0) {
-							// xx
-							discussionEntry = enrichDiscussionEntryFromJson(
-									discussionEntry, jsonDocument);
-						} else {
-							//							Log.i(getClass().getSimpleName(),
-							//									"No Document retrieved. Nothing to do");
-							ApplicationLog
-							.i("No Document retrieved. Nothing to do");
-						}
-					} catch (Exception e) {
-						// e.printStackTrace();
-						//						Log.e(getClass().getSimpleName(),
-						//								"getmessage: " + e.getMessage());
-						ApplicationLog.e("Exception: " + e.getMessage());
-					}
-
-				} else {
-					//					Log.e(getClass().getSimpleName(),
-					//							"There is a login issue when accessing "
-					//									+ urlForDocuments);
-					//					Log.e(getClass().getSimpleName(),
-					//							"The server prompts for login");
-
-					ApplicationLog.e("There is a login issue when accessing "
-							+ urlForDocuments);
-					ApplicationLog.e("The server prompts for login");
-				}
-
-			} catch (RestClientException e1) {
-				// e1.printStackTrace();
-				String errorMessage = e1.getMessage();
-				//				Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
-				ApplicationLog.e("Exception: " + errorMessage);
-				if (errorMessage.contains("403")) {
-					//					Log.i(getClass().getSimpleName(),
-					//							"403 - Looks like the Domino Data Service is not enabled for the database "
-					//									+ discussionDatabase.getDbPath());
-					ApplicationLog
-					.i("403 - Looks like the Domino Data Service is not enabled for the database "
-							+ discussionDatabase.getDbPath());
-				} else {
-					String localizedErrorMessage = e1.getLocalizedMessage();
-					if (localizedErrorMessage != null) {
-						//						Log.e(getClass().getSimpleName(),
-						//								"localizedErrorMessage: "
-						//										+ localizedErrorMessage);
-						ApplicationLog.e("localizedErrorMessage: "
-								+ localizedErrorMessage);
-					} else {
-						//						Log.e(getClass().getSimpleName(),
-						//								"Unable to get data from the database "
-						//										+ discussionDatabase.getDbPath());
-						ApplicationLog
-						.e("Unable to get data from the database "
-								+ discussionDatabase.getDbPath());
-					}
-				}
-				e1.printStackTrace();
-
-			}
-
-		} else {
-			//			Log.i(getClass().getSimpleName(),
-			//					"Internet connection not available - Replication not possible");
-			ApplicationLog
-			.i("Internet connection not available - Replication not possible");
+			requestHeaders.add("Cookie", authenticationCookie);
 		}
+
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.getMessageConverters().add(
+				new StringHttpMessageConverter());
+
+		String jsonString;
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(
+					urlForDocuments, HttpMethod.GET, requestEntity,
+					String.class);
+			jsonString = response.getBody();
+
+			//				Log.d(getClass().getSimpleName(), "String received length: "
+			//						+ jsonString.length());
+
+			ApplicationLog.d(
+					"String received length: " + jsonString.length(),
+					shouldCommitToLog);
+
+			if (!isThisALoginForm(jsonString)) {
+				try {
+					JSONObject jsonDocument = new JSONObject(jsonString);
+					if (jsonDocument.length() > 0) {
+						discussionEntry = enrichDiscussionEntryFromJson(
+								discussionEntry, jsonDocument);
+					} else {
+						ApplicationLog
+						.i("No Document retrieved. Nothing to do");
+					}
+				} catch (Exception e) {
+					ApplicationLog.e("Exception: " + e.getMessage());
+				}
+
+			} else {
+				ApplicationLog.e("There is a login issue when accessing "
+						+ urlForDocuments);
+				ApplicationLog.e("The server prompts for login");
+			}
+
+		} catch (RestClientException e1) {
+			// e1.printStackTrace();
+			String errorMessage = e1.getMessage();
+			//				Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
+			ApplicationLog.e("Exception: " + errorMessage);
+			if (errorMessage.contains("403")) {
+				//					Log.i(getClass().getSimpleName(),
+				//							"403 - Looks like the Domino Data Service is not enabled for the database "
+				//									+ discussionDatabase.getDbPath());
+				ApplicationLog
+				.i("403 - Looks like the Domino Data Service is not enabled for the database "
+						+ discussionDatabase.getDbPath());
+			} else {
+				String localizedErrorMessage = e1.getLocalizedMessage();
+				if (localizedErrorMessage != null) {
+					//						Log.e(getClass().getSimpleName(),
+					//								"localizedErrorMessage: "
+					//										+ localizedErrorMessage);
+					ApplicationLog.e("localizedErrorMessage: "
+							+ localizedErrorMessage);
+				} else {
+					//						Log.e(getClass().getSimpleName(),
+					//								"Unable to get data from the database "
+					//										+ discussionDatabase.getDbPath());
+					ApplicationLog
+					.e("Unable to get data from the database "
+							+ discussionDatabase.getDbPath());
+				}
+			}
+			e1.printStackTrace();
+
+		}
+
+		//		} 
+		//		else {
+		//			ApplicationLog
+		//			.i("Internet connection not available - Replication not possible");
+		//		}
 
 		return discussionEntry;
 
