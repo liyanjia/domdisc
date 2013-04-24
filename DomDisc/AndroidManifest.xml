@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dk.bruntt.discussionwork2"
+    package="org.openntf.domdisc"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -16,49 +16,38 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock.Light" >
         <activity
-            android:name="dk.bruntt.discussionwork2.DiscussionEntriesViewActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name="dk.bruntt.discussionwork2.DatabaseConfigurationsActivity"
+            android:name="org.openntf.domdisc.ui.DatabaseConfigurationsActivity"
             android:label="@string/title_activity_main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DiscussionEntriesViewActivity" />
         </activity>
         <activity
-            android:name="dk.bruntt.discussionwork2.AddDiscussionDatabaseActivity"
+            android:name="org.openntf.domdisc.ui.AddDiscussionDatabaseActivity"
             android:label="Add discussion database" />
         <activity
-            android:name="dk.bruntt.discussionwork2.ui.AddDiscussionEntryActivity"
+            android:name="org.openntf.domdisc.ui.AddDiscussionEntryActivity"
             android:label="Add discussion entry" />
         <activity
-            android:name="dk.bruntt.discussionwork2.ReadDiscussionEntryActivity"
-            android:label="Read discussion entry" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".DiscussionEntriesViewActivity" />
-        </activity>
-        <activity
-            android:name="dk.bruntt.discussionwork2.LogListActivity"
+            android:name="org.openntf.domdisc.ui.LogListActivity"
             android:label="Log Entries" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DiscussionEntriesViewActivity" />
         </activity>
         <activity
-            android:name="dk.bruntt.discussionwork2.PreferenceActivity"
+            android:name="org.openntf.domorg.openntf.domdisc.ui.PreferenceActivity"
             android:label="Preferences" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DatabaseConfigurationsActivity" />
         </activity>
         <activity
-            android:name="dk.bruntt.discussionwork2.ui.ReadDiscussionEntry2Activity"
+            android:name="org.openntf.domdisc.ui.ReadDiscussionEntry2Activity"
             android:label="Read entry" >
         </activity>
         <activity
-            android:name="dk.bruntt.discussionwork2.ui.StartActivity"
+            android:name="org.openntf.domdisc.ui.StartActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -66,13 +55,13 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="PollReceiver" >
+        <receiver android:name="dk.bruntt.discussionwork2.PollReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <service android:name="ScheduledService" >
+        <service android:name="dk.bruntt.discussionwork2.ScheduledService" >
         </service>
     </application>
 

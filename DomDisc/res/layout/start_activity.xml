@@ -9,7 +9,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        class="dk.bruntt.discussionwork2.ui.DiscussionMainEntriesViewFragment" >
+        class="org.openntf.domdisc.ui.DiscussionMainEntriesViewFragment" >
     </fragment>
 
     <FrameLayout
