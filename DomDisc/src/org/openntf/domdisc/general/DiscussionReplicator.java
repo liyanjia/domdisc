@@ -539,12 +539,7 @@ public class DiscussionReplicator {
 					String.class);
 			jsonString = response.getBody();
 
-			//				Log.d(getClass().getSimpleName(), "String received length: "
-			//						+ jsonString.length());
-
-			ApplicationLog.d(
-					"String received length: " + jsonString.length(),
-					shouldCommitToLog);
+			ApplicationLog.d("String received length: " + jsonString.length(),shouldCommitToLog);
 
 			if (!isThisALoginForm(jsonString)) {
 				try {
@@ -567,43 +562,40 @@ public class DiscussionReplicator {
 			}
 
 		} catch (RestClientException e1) {
-			// e1.printStackTrace();
 			String errorMessage = e1.getMessage();
-			//				Log.e(getClass().getSimpleName(), "getmessage: " + errorMessage);
 			ApplicationLog.e("Exception: " + errorMessage);
 			if (errorMessage.contains("403")) {
-				//					Log.i(getClass().getSimpleName(),
-				//							"403 - Looks like the Domino Data Service is not enabled for the database "
-				//									+ discussionDatabase.getDbPath());
 				ApplicationLog
 				.i("403 - Looks like the Domino Data Service is not enabled for the database "
 						+ discussionDatabase.getDbPath());
 			} else {
 				String localizedErrorMessage = e1.getLocalizedMessage();
 				if (localizedErrorMessage != null) {
-					//						Log.e(getClass().getSimpleName(),
-					//								"localizedErrorMessage: "
-					//										+ localizedErrorMessage);
 					ApplicationLog.e("localizedErrorMessage: "
 							+ localizedErrorMessage);
 				} else {
-					//						Log.e(getClass().getSimpleName(),
-					//								"Unable to get data from the database "
-					//										+ discussionDatabase.getDbPath());
 					ApplicationLog
 					.e("Unable to get data from the database "
 							+ discussionDatabase.getDbPath());
 				}
 			}
 			e1.printStackTrace();
-
+		} catch(OutOfMemoryError e) {
+			String errorMessage = e.getMessage();
+			if (errorMessage == null) {
+				errorMessage = "Unknown error message";
+			}
+			ApplicationLog.e("Out of Memory Error: " + errorMessage + ". Possibly we ran into a very large document");
+			e.printStackTrace();			
 		}
-
-		//		} 
-		//		else {
-		//			ApplicationLog
-		//			.i("Internet connection not available - Replication not possible");
-		//		}
+		catch (Exception e) {
+			String errorMessage = e.getMessage();
+			if (errorMessage == null) {
+				errorMessage = "Unknown error message";
+			}
+			ApplicationLog.e("Exception: " + errorMessage);
+			e.printStackTrace();
+		}
 
 		return discussionEntry;
 
@@ -710,10 +702,9 @@ public class DiscussionReplicator {
 						//contentTransferEncoding
 						String bodyHtmlDecoded = ""; 
 						if (bodyItem.has("contentTransferEncoding")) {
-							String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
+//							String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
 
-							ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldCommitToLog);
-							//								Log.d(getClass().getSimpleName(), "contentTransferEncoding is specified as "  + contentTransferEncoding + " will do decoding");
+//							ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldCommitToLog);
 
 							QuotedPrintableCodec dims = new QuotedPrintableCodec(); 
 
@@ -721,7 +712,7 @@ public class DiscussionReplicator {
 							String newstr = bodyHtml.replaceAll("=\r\n", "");
 
 							bodyHtml = newstr;
-							ApplicationLog.d("decoding: " + bodyHtml, shouldCommitToLog);
+//							ApplicationLog.d("decoding: " + bodyHtml, shouldCommitToLog);
 
 							try {
 								bodyHtmlDecoded = dims.decode(bodyHtml, charsetValue);
@@ -733,7 +724,7 @@ public class DiscussionReplicator {
 								ApplicationLog.d("Exception: " + e.getMessage(), shouldCommitToLog);
 							}
 
-							ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldCommitToLog);
+//							ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldCommitToLog);
 						}
 
 						// Checking for quoted-printable content - END
