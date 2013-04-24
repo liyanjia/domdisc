@@ -6,7 +6,6 @@ import java.util.List;
 import org.openntf.domdisc.db.DatabaseManager;
 import org.openntf.domdisc.general.ApplicationLog;
 import org.openntf.domdisc.general.Constants;
-import org.openntf.domdisc.general.ReadDiscussionEntryActivity;
 import org.openntf.domdisc.model.DiscussionEntry;
 import org.openntf.domdisc.ui.DiscussionMainEntriesViewFragment.OnItemSelectedListener;
 

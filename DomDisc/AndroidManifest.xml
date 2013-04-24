@@ -36,7 +36,7 @@
                 android:value=".DiscussionEntriesViewActivity" />
         </activity>
         <activity
-            android:name="org.openntf.domorg.openntf.domdisc.ui.PreferenceActivity"
+            android:name="org.openntf.domdisc.ui.PreferenceActivity"
             android:label="Preferences" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -45,6 +45,10 @@
         <activity
             android:name="org.openntf.domdisc.ui.ReadDiscussionEntry2Activity"
             android:label="Read entry" >
+        </activity>
+        <activity 
+            android:name="org.openntf.domdisc.ui.AboutAppActivity"
+            android:label="About app">
         </activity>
         <activity
             android:name="org.openntf.domdisc.ui.StartActivity"
@@ -55,13 +59,13 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="dk.bruntt.discussionwork2.PollReceiver" >
+        <receiver android:name="org.openntf.domdisc.general.PollReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <service android:name="dk.bruntt.discussionwork2.ScheduledService" >
+        <service android:name="org.openntf.domdisc.general.ScheduledService" >
         </service>
     </application>
 

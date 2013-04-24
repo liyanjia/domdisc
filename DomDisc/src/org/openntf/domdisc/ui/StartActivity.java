@@ -183,6 +183,10 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 			// refresh
 			setupListView(discussionDatabase);
 			return true;
+		case R.id.menu_about:
+			intent = new Intent(activity, AboutAppActivity.class);
+			startActivity(intent);
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
