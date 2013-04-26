@@ -87,6 +87,25 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 		DatabaseManager.init(this);
 		handleUpgradeCheck();
 
+		initializeDatabaseDisplay();
+
+	}
+	
+	
+	@Override 
+	protected void onResume() {
+		super.onResume();
+		
+		//We might be returning from the configurations Activity and want to display the updated list of Databases in the spinner
+		
+		if(discussionDatabase == null) {
+			initializeDatabaseDisplay();
+		}
+	}
+
+
+
+	private void initializeDatabaseDisplay() {
 		int discussionDatabaseId = getLastOpenDiscussionDatabase();
 		if (discussionDatabaseId < 0) {
 			ApplicationLog.d("No database has been opened previously", shouldCommitToLog);
@@ -123,7 +142,6 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 				getSupportActionBar().setSelectedNavigationItem(pos);
 			}
 		}
-
 	}
 
 
@@ -174,14 +192,17 @@ public class StartActivity extends SherlockFragmentActivity implements ActionBar
 			startActivity(intent);
 			return true;
 		case R.id.menu_compose_document:
-			intent = new Intent(activity, AddDiscussionEntryActivity.class);
-			intent.putExtra(Constants.keyDiscussionDatabaseId,
-					discussionDatabase.getId());
-			startActivity(intent);
+			if (discussionDatabase != null) {
+				intent = new Intent(activity, AddDiscussionEntryActivity.class);
+				intent.putExtra(Constants.keyDiscussionDatabaseId,	discussionDatabase.getId());
+				startActivity(intent);	
+			}
 			return true;
 		case R.id.menu_refresh:
 			// refresh
-			setupListView(discussionDatabase);
+			if (discussionDatabase != null) {
+				setupListView(discussionDatabase);	
+			}
 			return true;
 		case R.id.menu_about:
 			intent = new Intent(activity, AboutAppActivity.class);
