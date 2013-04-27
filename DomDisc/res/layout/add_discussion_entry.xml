@@ -7,7 +7,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/subject" />
+        android:text="@string/subject" 
+        android:layout_marginTop="10dp"/>
     <EditText
         android:id="@+id/edit_subject"
         android:layout_width="match_parent"
@@ -16,21 +17,24 @@
         android:hint="@string/subject_hint"/>
 
     <TextView
+        android:id="@+id/headline_categories"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/categories" />
+        android:text="@string/categories" 
+        android:layout_marginTop="10dp"/>
     <EditText
         android:id="@+id/edit_categories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1" 
-        android:hint="Category"
+        android:hint="@string/category_hint"
         />
     
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/body" />
+        android:text="@string/body" 
+        android:layout_marginTop="10dp"/>
     <EditText
         android:id="@+id/edit_body"
         android:layout_width="match_parent"

@@ -49,8 +49,9 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         String title = "";
         if (parentDiscussionEntry != null) {
-        	title = "New response to" + parentDiscussionEntry.getSubject();
+        	title = "New response to " + parentDiscussionEntry.getSubject();
         	editCategories.setVisibility(View.GONE);
+        	contentView.findViewById(R.id.headline_categories).setVisibility(View.GONE);
         } else {
         	title = "New discussion thread";
         }

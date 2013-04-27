@@ -42,10 +42,14 @@
 
     <!-- AddDiscussionEntryActivity -->
     <string name="subject">Subject:</string>
+    <string name="subject_hint">Short subject of your entry</string>
+    
     <string name="categories">Categories:</string>
+    <string name="category_hint">A category</string>
+    
     <string name="body">Body:</string>
     <string name="body_hint">Enter the main body text</string>
-    <string name="subject_hint">Short subject of your entry</string>
+    
 
     <!-- InitialRightPaneFragment -->
     <string name="initial_right_pane_text">Welcome to the app</string>
