@@ -428,19 +428,17 @@ public class DiscussionReplicator {
 				DiscussionEntry dbEntry = DatabaseManager.getInstance().getDiscussionEntryWithId(unid);
 
 				if (dbEntry == null) {
-					String entryForm = currentEntry.getForm();
+
+					ApplicationLog.d("This entry has not been stored before - retrieving full entry ", shouldCommitToLog);
+					currentEntry.setDiscussionDatabase(discussionDatabase);
+					DiscussionEntry fullDiscussionEntry = getFullEntryFromServer(currentEntry, authenticationCookie);
+					String entryForm = fullDiscussionEntry.getForm();
 					if (isAcceptableFormType(entryForm)) {
-						ApplicationLog.d("This entry has not been stored before - creating newDiscussionEntry", shouldCommitToLog);
-
-						currentEntry.setDiscussionDatabase(discussionDatabase);
-						DiscussionEntry fullDiscussionEntry = getFullEntryFromServer(currentEntry, authenticationCookie);
 						DatabaseManager.getInstance().createDiscussionEntry(fullDiscussionEntry);
-						ApplicationLog.d("This entry has been stored with values: " + fullDiscussionEntry.getSubject(), shouldCommitToLog);
+						ApplicationLog.d("This entry has been stored with values: " + fullDiscussionEntry.getSubject(), shouldCommitToLog);	
 					} else {
-						ApplicationLog.d("This entry has not been stored before - but is not one of the accepted Form types. Will not store", shouldCommitToLog);
+						ApplicationLog.d("This entry has not been stored before, but the Form Type is not one of the accepted types. Will not store", shouldCommitToLog);
 					}
-					
-
 				} else {
 					ApplicationLog.d("This entry is already in the database: " + dbEntry.getSubject(), shouldCommitToLog);
 					ApplicationLog.d("Checking if modified dates are the same", shouldCommitToLog);
@@ -501,23 +499,23 @@ public class DiscussionReplicator {
 	 * @return true if one of the Form types that we want to allow you to store has been used
 	 */
 	private boolean isAcceptableFormType(String entryForm) {
-		
+
 		if (entryForm == null) {
 			return false;
 		}
-		
+
 		if (entryForm.equalsIgnoreCase("maintopic")) {
 			return true;
 		}
-		
+
 		if (entryForm.equalsIgnoreCase("response")) {
 			return true;
 		}
-		
+
 		if (entryForm.equalsIgnoreCase("responsetoresponse")) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -733,9 +731,9 @@ public class DiscussionReplicator {
 						//contentTransferEncoding
 						String bodyHtmlDecoded = ""; 
 						if (bodyItem.has("contentTransferEncoding")) {
-//							String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
+							//							String contentTransferEncoding = bodyItem.getString("contentTransferEncoding");
 
-//							ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldCommitToLog);
+							//							ApplicationLog.d("contentTransferEncoding is specified as " + contentTransferEncoding + " will do decoding", shouldCommitToLog);
 
 							QuotedPrintableCodec dims = new QuotedPrintableCodec(); 
 
@@ -743,7 +741,7 @@ public class DiscussionReplicator {
 							String newstr = bodyHtml.replaceAll("=\r\n", "");
 
 							bodyHtml = newstr;
-//							ApplicationLog.d("decoding: " + bodyHtml, shouldCommitToLog);
+							//							ApplicationLog.d("decoding: " + bodyHtml, shouldCommitToLog);
 
 							try {
 								bodyHtmlDecoded = dims.decode(bodyHtml, charsetValue);
@@ -755,7 +753,7 @@ public class DiscussionReplicator {
 								ApplicationLog.d("Exception: " + e.getMessage(), shouldCommitToLog);
 							}
 
-//							ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldCommitToLog);
+							//							ApplicationLog.d("decoded: " + bodyHtmlDecoded, shouldCommitToLog);
 						}
 
 						// Checking for quoted-printable content - END
