@@ -11,34 +11,17 @@ public class ApplicationLog {
 	
 	private static String TAG = "DomDisc";
 	
-	/**
-	 * Log Error
-	 * @param logText
-	 */
 	public final static void e(String logText) {
 		String level = "e";
-		add(logText, level);
-		Log.e(TAG, logText);
+			Log.e(TAG, logText);
+			add(logText, level);	
 	}
 
-	/**
-	 * Log informational
-	 * @param logText
-	 */
 	public final static void i(String logText) {
 		String level = "i";
-		add(logText, level);
-		Log.i(TAG, logText);
+			Log.i(TAG, logText);
+			add(logText, level);	
 	}
-
-//	/**
-//	 * Log debug
-//	 * @param logText
-//	 */
-//	public final static void d(String logText) {
-//		String level = "d";
-//		add(logText, level);
-//	}
 	
 	/**
 	 * Log debug. Only saves to Log database if shouldCommit is true
@@ -48,19 +31,15 @@ public class ApplicationLog {
 	public final static void d(String logText, boolean shouldCommitToLog) {
 		String level = "d";
 		if (shouldCommitToLog) {
+			Log.d(TAG, logText);
 			add(logText, level);	
 		}
-		Log.d(TAG, logText);
 	}
 
-	/**
-	 * Log Warning
-	 * @param logText
-	 */
 	public final static void w(String logText) {
 		String level = "w";
-		add(logText, level);
-		Log.w(TAG, logText);
+			Log.w(TAG, logText);
+			add(logText, level);
 	}
 	
 	private final static void add(String logText, String level) {
@@ -80,6 +59,5 @@ public class ApplicationLog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}	
 }

@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
@@ -49,6 +50,7 @@ public class AddDiscussionEntryActivity extends SherlockActivity {
         String title = "";
         if (parentDiscussionEntry != null) {
         	title = "New response to" + parentDiscussionEntry.getSubject();
+        	editCategories.setVisibility(View.GONE);
         } else {
         	title = "New discussion thread";
         }
