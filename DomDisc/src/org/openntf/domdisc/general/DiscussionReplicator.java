@@ -263,7 +263,7 @@ public class DiscussionReplicator {
 
 		String jsonString;
 		try {
-			ApplicationLog.i("Accesing " + urlForDocuments);
+			ApplicationLog.d("Accesing " + urlForDocuments, shouldCommitToLog);
 
 			// Make the HTTP GET request, marshaling the response to a
 			// String
@@ -538,7 +538,7 @@ public class DiscussionReplicator {
 
 		String urlForDocuments = discussionEntry.getHref();
 
-		ApplicationLog.i("Accesing " + urlForDocuments);
+		ApplicationLog.d("Accesing " + urlForDocuments, shouldCommitToLog);
 
 		ApplicationLog.d("Starting", shouldCommitToLog);
 
